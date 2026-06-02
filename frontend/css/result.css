@@ -1,0 +1,187 @@
+/**
+ * Styles pour l'overlay de résultats de scan (3 états)
+ * États : VALIDE, DÉJÀ UTILISÉ, INVALIDE
+ * Animations préparées pour l'étape 6
+ */
+
+/* ==================== OVERLAY BASE ==================== */
+
+#scan-result-overlay {
+  /* Styles d'overlay déjà définis dans main.css */
+  animation: fadeIn var(--transition-default);
+}
+
+
+/* ==================== ÉTAT BASE (CARTE RÉSULTAT) ==================== */
+
+.result-state {
+  max-width: 700px;
+  width: 90%;
+  padding: var(--spacing-3xl) var(--spacing-2xl);
+  border-radius: var(--radius-card);
+  text-align: center;
+  box-shadow: var(--shadow-overlay);
+  animation: slideUp var(--transition-slow);
+}
+
+.result-state h1 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-text-primary);
+}
+
+.result-state .subtitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.result-state .timestamp {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.result-state .code {
+  font-size: var(--font-size-lg);
+  font-family: var(--font-mono);
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-lg);
+}
+
+.result-state .note {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-xl);
+  font-style: italic;
+}
+
+.highlight {
+  color: var(--color-accent-gold);
+  font-weight: var(--font-weight-bold);
+}
+
+
+/* ==================== ICÔNES DE RÉSULTAT ==================== */
+
+.icon-success,
+.icon-warning,
+.icon-error {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto var(--spacing-2xl);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72px;
+  font-weight: bold;
+  box-shadow: var(--shadow-card);
+}
+
+
+/* ==================== ÉTAT 1 : INVITATION VALIDE ==================== */
+
+.result-valid {
+  background: linear-gradient(135deg, 
+    rgba(46, 204, 113, 0.15) 0%, 
+    rgba(46, 204, 113, 0.05) 100%);
+  border: var(--border-width-medium) solid var(--color-success);
+}
+
+.icon-success {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.result-valid h1 {
+  color: var(--color-success);
+}
+
+
+/* ==================== ÉTAT 2 : INVITATION DÉJÀ UTILISÉE ==================== */
+
+.result-warning {
+  background: linear-gradient(135deg, 
+    rgba(243, 156, 18, 0.15) 0%, 
+    rgba(243, 156, 18, 0.05) 100%);
+  border: var(--border-width-medium) solid var(--color-warning);
+}
+
+.icon-warning {
+  background-color: var(--color-warning);
+  color: var(--color-bg-primary);
+}
+
+.result-warning h1 {
+  color: var(--color-warning);
+}
+
+
+/* ==================== ÉTAT 3 : INVITATION INVALIDE ==================== */
+
+.result-danger {
+  background: linear-gradient(135deg, 
+    rgba(231, 76, 60, 0.15) 0%, 
+    rgba(231, 76, 60, 0.05) 100%);
+  border: var(--border-width-medium) solid var(--color-danger);
+}
+
+.icon-error {
+  background-color: var(--color-danger);
+  color: white;
+}
+
+.result-danger h1 {
+  color: var(--color-danger);
+}
+
+
+/* ==================== ANIMATIONS (PRÉPARÉES POUR ÉTAPE 6) ==================== */
+
+/* Animation "door-open" pour l'état valide */
+.result-state[data-animate="door-open"] {
+  /* Animation à implémenter en JS à l'étape 6 */
+  animation: slideUp var(--transition-slow), pulse var(--transition-slow) 0.3s;
+}
+
+/* Animation "check-bounce" pour l'icône de succès */
+.icon-success[data-animate="check-bounce"] {
+  /* Animation à implémenter en JS à l'étape 6 */
+  animation: bounce var(--transition-bounce);
+}
+
+/* Animation "shake" pour états warning/danger */
+.result-state[data-animate="shake"] {
+  /* Animation à implémenter en JS à l'étape 6 */
+  animation: slideUp var(--transition-slow), shake 0.5s;
+}
+
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+  .result-state {
+    padding: var(--spacing-2xl) var(--spacing-lg);
+  }
+  
+  .result-state h1 {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .result-state .subtitle {
+    font-size: var(--font-size-lg);
+  }
+  
+  .icon-success,
+  .icon-warning,
+  .icon-error {
+    width: 90px;
+    height: 90px;
+    font-size: 56px;
+  }
+}

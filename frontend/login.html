@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration - Connexion</title>
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+  <main class="login-screen">
+    <div class="login-card">
+      <h1>Administration</h1>
+      <p class="login-subtitle">Accès réservé aux organisateurs</p>
+      
+      <form id="login-form">
+        <div class="input-group">
+          <label for="admin-password">Mot de passe</label>
+          <div class="input-wrapper">
+            <input 
+              id="admin-password" 
+              type="password" 
+              required 
+              placeholder="Entrez le mot de passe"
+              aria-label="Mot de passe administrateur"
+              autocomplete="current-password"
+            >
+            <button 
+              type="button" 
+              id="toggle-password" 
+              class="toggle-password-btn"
+              aria-label="Afficher le mot de passe"
+              tabindex="-1"
+            >
+              👁
+            </button>
+          </div>
+        </div>
+        
+        <p id="login-error" class="error-message hidden" role="alert">
+          Mot de passe incorrect. Veuillez réessayer.
+        </p>
+        
+        <button id="btn-login" type="submit" class="btn btn-gold">
+          Accéder
+        </button>
+      </form>
+      
+      <a id="back-link" href="/index.html" class="link-secondary">
+        ← Retour à l'accueil
+      </a>
+    </div>
+  </main>
+  
+  <!-- Scripts JS (logique implémentée à l'Étape 6) -->
+  <script src="/js/api.js"></script>
+  <script src="/js/login.js"></script>
+</body>
+</html>

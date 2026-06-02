@@ -1,0 +1,28 @@
+# Données sensibles
+mariage.db
+mariage.db.backup
+mariage_log.txt
+
+# Outputs générés
+outputs/qrcodes/*.png
+outputs/invitations/*.pdf
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+.kiro/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Assets sensibles (à uploader manuellement après)
+assets/images/couple.jpg

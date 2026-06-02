@@ -1,0 +1,256 @@
+/**
+ * Styles pour l'écran de scan principal (index.html)
+ * Layout 2 colonnes : vidéo (60%) + stats (40%)
+ */
+
+/* ==================== LAYOUT PRINCIPAL ==================== */
+
+.scan-screen {
+  display: grid;
+  grid-template-columns: 1fr 500px;
+  gap: var(--spacing-2xl);
+  padding: var(--spacing-2xl);
+  min-height: 100vh;
+  background-color: var(--color-bg-primary);
+}
+
+
+/* ==================== PANNEAU VIDÉO (GAUCHE) ==================== */
+
+.video-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  background-color: var(--color-bg-card);
+}
+
+#camera-feed {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--radius-card);
+}
+
+/* Statut de la caméra (badge superposé) */
+.camera-status {
+  position: absolute;
+  bottom: var(--spacing-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-btn);
+  background-color: rgba(30, 30, 48, 0.95);
+  backdrop-filter: blur(8px);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  box-shadow: var(--shadow-button);
+  transition: all var(--transition-default);
+}
+
+.status-icon {
+  font-size: var(--font-size-lg);
+}
+
+/* États de la caméra */
+.camera-status[data-status="checking"] {
+  color: var(--color-text-secondary);
+}
+
+.camera-status[data-status="online"] {
+  color: var(--color-success);
+  border: var(--border-width-thin) solid var(--color-success);
+}
+
+.camera-status[data-status="offline"] {
+  color: var(--color-danger);
+  border: var(--border-width-thin) solid var(--color-danger);
+}
+
+
+/* ==================== PANNEAU STATS (DROITE) ==================== */
+
+.stats-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xl);
+  padding: var(--spacing-xl);
+  background-color: var(--color-bg-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+
+/* ==================== HORLOGE SYSTÈME ==================== */
+
+.clock {
+  text-align: center;
+  padding: var(--spacing-lg) 0;
+  border-bottom: var(--border-width-thin) solid var(--color-border);
+}
+
+.clock-time {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent-gold);
+  line-height: 1;
+  margin-bottom: var(--spacing-sm);
+}
+
+.clock-date {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+
+/* ==================== COMPTEURS ==================== */
+
+.counters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.counter-card {
+  background-color: var(--color-bg-primary);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-card);
+  text-align: center;
+  border: var(--border-width-thin) solid var(--color-border);
+  transition: all var(--transition-default);
+}
+
+.counter-card:hover {
+  border-color: var(--color-accent-gold);
+  transform: translateY(-4px);
+}
+
+.counter-value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent-gold);
+  line-height: 1;
+  margin-bottom: var(--spacing-sm);
+}
+
+.counter-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+
+/* ==================== BARRE DE PROGRESSION ==================== */
+
+.progress-container {
+  position: relative;
+  margin: var(--spacing-lg) 0;
+}
+
+progress {
+  width: 100%;
+  height: 20px;
+  border-radius: var(--radius-btn);
+  overflow: hidden;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+}
+
+/* Chrome/Safari */
+progress::-webkit-progress-bar {
+  background-color: var(--color-bg-primary);
+  border-radius: var(--radius-btn);
+}
+
+progress::-webkit-progress-value {
+  background: linear-gradient(90deg, 
+    var(--color-accent-gold) 0%, 
+    rgba(201, 168, 76, 0.7) 100%);
+  border-radius: var(--radius-btn);
+  transition: width var(--transition-slow);
+}
+
+/* Firefox */
+progress::-moz-progress-bar {
+  background: linear-gradient(90deg, 
+    var(--color-accent-gold) 0%, 
+    rgba(201, 168, 76, 0.7) 100%);
+  border-radius: var(--radius-btn);
+}
+
+.progress-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+
+/* ==================== ACTIONS ==================== */
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-top: auto;
+}
+
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 1280px) {
+  .scan-screen {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+  }
+  
+  .stats-panel {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .scan-screen {
+    padding: var(--spacing-lg);
+  }
+  
+  .counters {
+    grid-template-columns: 1fr;
+  }
+  
+  .counter-value {
+    font-size: var(--font-size-3xl);
+  }
+  
+  .clock-time {
+    font-size: var(--font-size-2xl);
+  }
+}

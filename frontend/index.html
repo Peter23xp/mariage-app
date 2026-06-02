@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mariage - Scan des invités</title>
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/scan.css">
+  <link rel="stylesheet" href="/css/result.css">
+</head>
+<body>
+  <main class="scan-screen">
+    <!-- Panneau vidéo gauche -->
+    <section class="video-panel">
+      <div class="video-container">
+        <img id="camera-feed" src="/scan/video-feed" alt="Flux caméra en direct" width="640" height="480">
+        <div id="camera-status" class="camera-status" data-status="checking">
+          <span class="status-icon">🔄</span>
+          <span class="status-text">Vérification de la caméra...</span>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Panneau stats droite -->
+    <aside class="stats-panel">
+      <!-- Horloge système -->
+      <div class="clock">
+        <time id="system-clock" class="clock-time">--:--:--</time>
+        <span id="system-date" class="clock-date">-- / -- / ----</span>
+      </div>
+      
+      <!-- Compteurs -->
+      <div class="counters">
+        <div class="counter-card">
+          <span id="counter-entered" class="counter-value">0</span>
+          <span class="counter-label">Invités entrés</span>
+        </div>
+        <div class="counter-card">
+          <span id="counter-total" class="counter-value">0</span>
+          <span class="counter-label">Total invités</span>
+        </div>
+      </div>
+      
+      <!-- Barre de progression -->
+      <div class="progress-container">
+        <progress id="counter-progress" value="0" max="100" aria-label="Progression des entrées"></progress>
+        <span id="progress-label" class="progress-label">0%</span>
+      </div>
+      
+      <!-- Actions -->
+      <nav class="actions">
+        <a href="/login.html" id="btn-admin" class="btn btn-gold">Administration</a>
+        <button id="btn-reset" class="btn btn-danger hidden" aria-label="Réinitialiser le scanner (debug)">
+          🔄 Reset Scanner
+        </button>
+      </nav>
+    </aside>
+    
+    <!-- Overlay résultat de scan (3 états possibles) -->
+    <!-- HOOK DYNAMIQUE : État contrôlé via scan.js (Étape 6) -->
+    <div id="scan-result-overlay" class="overlay hidden" data-state="idle">
+      
+      <!-- État 1 : INVITATION VALIDE -->
+      <div class="result-state result-valid hidden" data-animate="door-open">
+        <div class="icon-success" data-animate="check-bounce">✓</div>
+        <h1>Bienvenue <span id="result-name" class="highlight">---</span> !</h1>
+        <p class="subtitle">Table <span id="result-table" class="highlight">--</span></p>
+        <p class="timestamp">Entrée enregistrée à <span id="result-time">--:--</span></p>
+      </div>
+      
+      <!-- État 2 : INVITATION DÉJÀ UTILISÉE -->
+      <div class="result-state result-warning hidden" data-animate="shake">
+        <div class="icon-warning">⚠</div>
+        <h1>Invitation déjà utilisée</h1>
+        <p class="subtitle"><span id="result-warning-name" class="highlight">---</span></p>
+        <p class="timestamp">Premier scan : <span id="result-first-scan">-- / -- à --:--</span></p>
+        <p class="note">Veuillez contacter l'accueil</p>
+      </div>
+      
+      <!-- État 3 : INVITATION INVALIDE / NON RECONNUE -->
+      <div class="result-state result-danger hidden" data-animate="shake">
+        <div class="icon-error">✕</div>
+        <h1>Invitation non reconnue</h1>
+        <p class="subtitle">Ce code QR n'est pas valide</p>
+        <p class="code">Code scanné : <code id="result-invalid-code">---</code></p>
+        <p class="note">Veuillez contacter l'accueil</p>
+      </div>
+      
+    </div>
+  </main>
+  
+  <!-- Scripts JS (logique implémentée à l'Étape 6) -->
+  <script src="/js/api.js"></script>
+  <script src="/js/scan.js"></script>
+</body>
+</html>

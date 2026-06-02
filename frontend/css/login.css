@@ -1,0 +1,142 @@
+/**
+ * Styles pour l'écran de connexion administration
+ */
+
+/* ==================== LAYOUT PRINCIPAL ==================== */
+
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, 
+    var(--color-bg-primary) 0%, 
+    #0a0a14 100%);
+}
+
+
+/* ==================== CARTE LOGIN ==================== */
+
+.login-card {
+  background-color: var(--color-bg-card);
+  border-radius: var(--radius-card);
+  padding: var(--spacing-3xl);
+  max-width: 500px;
+  width: 100%;
+  box-shadow: var(--shadow-overlay);
+  border: var(--border-width-thin) solid var(--color-border);
+}
+
+.login-card h1 {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent-gold);
+  margin-bottom: var(--spacing-sm);
+}
+
+.login-subtitle {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-2xl);
+}
+
+
+/* ==================== FORMULAIRE ==================== */
+
+#login-form {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.input-group {
+  /* Styles déjà définis dans main.css */
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper input {
+  padding-right: 48px; /* Espace pour le bouton toggle */
+}
+
+/* Bouton toggle show/hide password */
+.toggle-password-btn {
+  position: absolute;
+  right: var(--spacing-sm);
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-small);
+  transition: all var(--transition-fast);
+  opacity: 0.6;
+}
+
+.toggle-password-btn:hover {
+  opacity: 1;
+  background-color: rgba(201, 168, 76, 0.1);
+}
+
+.toggle-password-btn:focus-visible {
+  outline: 2px solid var(--color-accent-gold);
+  outline-offset: 2px;
+}
+
+
+/* ==================== BOUTON SUBMIT ==================== */
+
+#btn-login {
+  width: 100%;
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  font-size: var(--font-size-lg);
+}
+
+
+/* ==================== MESSAGE D'ERREUR ==================== */
+
+.error-message {
+  /* Styles de base dans main.css */
+  padding: var(--spacing-md);
+  background-color: rgba(231, 76, 60, 0.1);
+  border: var(--border-width-thin) solid var(--color-danger);
+  border-radius: var(--radius-input);
+  text-align: center;
+  margin-top: var(--spacing-lg);
+}
+
+
+/* ==================== LIEN RETOUR ==================== */
+
+.link-secondary {
+  display: block;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  transition: color var(--transition-fast);
+  padding: var(--spacing-sm);
+}
+
+.link-secondary:hover {
+  color: var(--color-accent-gold);
+}
+
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+  .login-card {
+    padding: var(--spacing-2xl);
+  }
+  
+  .login-card h1 {
+    font-size: var(--font-size-2xl);
+  }
+}
