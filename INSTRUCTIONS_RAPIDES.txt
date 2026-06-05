@@ -1,0 +1,132 @@
+╔══════════════════════════════════════════════════════════════╗
+║   APPLICATION MARIAGE - INSTRUCTIONS RAPIDES                 ║
+╚══════════════════════════════════════════════════════════════╝
+
+📋 DÉMARRAGE EN 3 ÉTAPES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1️⃣  PERSONNALISER (Optionnel)
+   ▸ Photo du couple : assets\images\couple.jpg
+   ▸ Noms : frontend\js\welcome_config.js
+
+2️⃣  DÉMARRER L'APPLICATION
+   ▸ Double-cliquez sur : start.bat
+   ▸ Ou dans un terminal : python main.py
+
+3️⃣  CONFIGURATION AUTOMATIQUE
+   ▸ Le navigateur s'ouvre automatiquement
+   ▸ L'écran de bienvenue est prêt !
+
+
+🖥️  CONFIGURATION DES ÉCRANS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📺 ÉCRAN PRINCIPAL (Bienvenue) - PAGE PAR DÉFAUT
+   URL : https://localhost:8888/
+   ou  : https://192.168.x.x:8888/
+   ▸ S'ouvre automatiquement au démarrage
+   ▸ Appuyez sur F11 pour plein écran
+   ▸ Placez sur écran secondaire/projecteur
+
+📱 INTERFACE DE SCAN
+   URL : https://localhost:8888/scan.html
+   ou  : https://192.168.x.x:8888/scan.html
+   ▸ Scannez les QR codes ici
+   ▸ Interface de contrôle
+
+👤 PANNEAU ADMIN
+   URL : https://localhost:8888/admin.html
+   ▸ Login : admin123 ou 3Nathalie?
+   ▸ Gérez les invités
+   ▸ Import/Export CSV
+
+
+📊 WORKFLOW LE JOUR J
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+AVANT LE MARIAGE :
+  ✓ Testez tous les écrans
+  ✓ Vérifiez la photo du couple
+  ✓ Importez la liste des invités (admin)
+  ✓ Désactivez les notifications Windows
+
+PENDANT LE MARIAGE :
+  1. Lancez start.bat
+  2. L'écran de bienvenue s'ouvre automatiquement à la racine (/)
+  3. Mettez-le en plein écran (F11)
+  4. Glissez sur l'écran secondaire
+  5. Ouvrez l'interface scanner : https://localhost:8888/scan.html
+  6. Scannez les QR codes → Message apparaît automatiquement !
+
+
+🎨 CE QUI SE PASSE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MODE VEILLE :
+  ▸ Photo du couple avec effet flottant
+  ▸ Particules animées en arrière-plan
+  ▸ "En attente d'un invité..."
+
+SCAN DÉTECTÉ :
+  ▸ Transition automatique
+  ▸ "Bienvenue [Nom de l'invité] !"
+  ▸ 150 confettis colorés
+  ▸ Badge avec numéro de table
+  ▸ Affichage pendant 8 secondes
+  ▸ Retour automatique en mode veille
+
+
+🔧 DÉPANNAGE RAPIDE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ Le navigateur ne s'ouvre pas ?
+   → Ouvrez manuellement https://localhost:8888/
+
+❌ J'arrive sur l'écran de bienvenue au lieu du scanner ?
+   → Normal ! L'écran de bienvenue est la page par défaut
+   → Pour scanner : https://localhost:8888/scan.html
+
+❌ Photo du couple ne s'affiche pas ?
+   → Vérifiez que le fichier existe : assets\images\couple.jpg
+
+❌ Warnings au démarrage ?
+   → Normal ! L'application fonctionne malgré les warnings OpenCV
+
+❌ Certificat SSL non approuvé ?
+   → Cliquez "Avancé" puis "Continuer vers localhost"
+
+❌ L'écran ne se met pas à jour ?
+   → Rechargez la page (Ctrl+R)
+   → Vérifiez la connexion réseau
+
+
+📖 DOCUMENTATION COMPLÈTE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+README.md                        Vue d'ensemble
+.kiro\WELCOME_DISPLAY.md         Guide écran de bienvenue
+.kiro\QUICK_START_WELCOME.md     Démarrage rapide 5 min
+.kiro\ADMIN_FEATURES.md          Fonctionnalités admin
+.kiro\AUTO_OPEN_BROWSER.md       Configuration navigateur
+.kiro\RECAP_FINAL.md             Récapitulatif complet
+
+
+💡 CONSEILS PRO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ Testez AVANT le jour J
+✓ Utilisez Chrome ou Edge (meilleure performance)
+✓ Désactivez la mise en veille de l'écran
+✓ Mode "Ne pas déranger" pour éviter les notifications
+✓ Câble HDMI de qualité pour l'écran secondaire
+✓ Ayez un ordinateur de backup prêt
+
+
+🎉 BON MARIAGE !
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Tout est prêt pour accueillir vos invités avec style ! 💒
+
+Questions ? Consultez la documentation dans le dossier .kiro\
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

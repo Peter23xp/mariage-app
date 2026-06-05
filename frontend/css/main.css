@@ -1,10 +1,17 @@
 /**
- * Styles globaux et fondations
- * Reset + Typographie + Classes utilitaires
+ * main.css — Fondations globales
+ * Reset · Typographie Inter + Geist Mono · Utilitaires Mintlify
  */
 
-/* ==================== RESET CSS ==================== */
+/* ================================================================
+   GOOGLE FONTS (Inter + Geist Mono)
+================================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap');
 
+/* ================================================================
+   RESET
+================================================================ */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -15,51 +22,40 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
 }
 
 body {
   min-height: 100vh;
   font-family: var(--font-body);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-md);
   line-height: var(--line-height-normal);
-  color: var(--color-text-primary);
-  background-color: var(--color-bg-primary);
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
 }
 
-/* Listes sans puces par défaut */
-ul, ol {
-  list-style: none;
-}
+ul, ol { list-style: none; }
 
-/* Images responsive */
 img {
   max-width: 100%;
   height: auto;
   display: block;
 }
 
-/* Liens sans soulignement par défaut */
 a {
   color: inherit;
   text-decoration: none;
-  transition: color var(--transition-fast);
 }
 
-a:hover {
-  color: var(--color-accent-gold);
-}
-
-/* Boutons reset */
 button {
   font-family: inherit;
   font-size: inherit;
   border: none;
   background: none;
   cursor: pointer;
-  transition: all var(--transition-default);
 }
 
-/* Inputs reset */
 input, textarea, select {
   font-family: inherit;
   font-size: inherit;
@@ -68,257 +64,245 @@ input, textarea, select {
   outline: none;
 }
 
-
-/* ==================== POLICES LOCALES ==================== */
-
-/* NOTE: Polices à télécharger depuis Google Fonts
- * Playfair Display (700): https://fonts.google.com/specimen/Playfair+Display
- * Inter (400, 500, 600): https://fonts.google.com/specimen/Inter
- * 
- * Pour l'instant, utilisation des fallbacks système.
- * Décommenter et ajuster les chemins une fois les fichiers téléchargés.
- */
-
-/*
-@font-face {
-  font-family: 'Playfair Display';
-  src: url('/assets/fonts/playfair-display-v30-latin-700.woff2') format('woff2'),
-       url('/assets/fonts/playfair-display-v30-latin-700.woff') format('woff');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Inter';
-  src: url('/assets/fonts/inter-v13-latin-regular.woff2') format('woff2'),
-       url('/assets/fonts/inter-v13-latin-regular.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Inter';
-  src: url('/assets/fonts/inter-v13-latin-500.woff2') format('woff2'),
-       url('/assets/fonts/inter-v13-latin-500.woff') format('woff');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Inter';
-  src: url('/assets/fonts/inter-v13-latin-600.woff2') format('woff2'),
-       url('/assets/fonts/inter-v13-latin-600.woff') format('woff');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-*/
-
-
-/* ==================== TYPOGRAPHIE ==================== */
+/* ================================================================
+   TYPOGRAPHIE
+================================================================ */
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  font-weight: var(--font-weight-bold);
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
-  color: var(--color-accent-gold);
-  margin-bottom: var(--spacing-md);
+  color: var(--color-ink);
 }
 
-h1 {
-  font-size: var(--font-size-4xl);
-}
-
-h2 {
-  font-size: var(--font-size-3xl);
-}
-
-h3 {
-  font-size: var(--font-size-2xl);
-}
-
-h4 {
-  font-size: var(--font-size-xl);
-}
-
-h5 {
-  font-size: var(--font-size-lg);
-}
-
-h6 {
-  font-size: var(--font-size-base);
-}
+h1 { font-size: var(--font-size-4xl); letter-spacing: var(--ls-heading-1); }
+h2 { font-size: var(--font-size-3xl); letter-spacing: var(--ls-heading-2); }
+h3 { font-size: var(--font-size-2xl); }
+h4 { font-size: var(--font-size-xl); }
+h5 { font-size: var(--font-size-lg); }
+h6 { font-size: var(--font-size-md); }
 
 p {
-  margin-bottom: var(--spacing-md);
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-normal);
+  color: var(--color-slate);
 }
 
-strong {
-  font-weight: var(--font-weight-semibold);
-}
+strong { font-weight: var(--font-weight-medium); }
 
-code {
+code, kbd, pre {
   font-family: var(--font-mono);
-  font-size: 0.9em;
-  background-color: var(--color-bg-card);
+  font-size: 13px;
+}
+
+/* Code inline (body prose) */
+code {
+  background: var(--color-surface);
+  color: var(--color-charcoal);
   padding: 2px 6px;
-  border-radius: var(--radius-small);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--color-hairline);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
 }
 
+/* ================================================================
+   UTILITAIRES
+================================================================ */
 
-/* ==================== CLASSES UTILITAIRES ==================== */
-
-/* Visibilité */
-.hidden {
-  display: none !important;
-}
+.hidden { display: none !important; }
 
 .visually-hidden {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  clip: rect(0,0,0,0);
   white-space: nowrap;
   border: 0;
 }
 
-/* Cartes */
-.card {
-  background-color: var(--color-bg-card);
-  border-radius: var(--radius-card);
-  padding: var(--spacing-lg);
-  box-shadow: var(--shadow-card);
-}
-
-/* Overlay */
+/* ================================================================
+   OVERLAY (résultats scan)
+================================================================ */
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(15, 15, 26, 0.95);
+  inset: 0;
+  background: rgba(15, 23, 42, 0.88);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: var(--z-overlay);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fadeIn var(--transition-slow);
 }
 
-/* Modal */
+/* ================================================================
+   MODAL
+================================================================ */
 .modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(15, 15, 26, 0.9);
+  inset: 0;
+  background: rgba(15, 23, 42, 0.70);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: var(--z-modal);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: var(--spacing-xl);
 }
 
+.modal.hidden { display: none !important; }
+
 .modal-content {
-  background-color: var(--color-bg-card);
-  border-radius: var(--radius-card);
-  padding: var(--spacing-2xl);
-  max-width: 600px;
-  width: 90%;
-  box-shadow: var(--shadow-overlay);
+  background: var(--color-canvas);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xxl);
+  max-width: 560px;
+  width: 100%;
+  box-shadow: var(--shadow-3);
+  border: 1px solid var(--color-hairline);
+  position: relative;
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-xl);
-  padding-bottom: var(--spacing-md);
-  border-bottom: var(--border-width-thin) solid var(--color-border);
+  margin-bottom: var(--spacing-xxl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-hairline);
 }
 
-.btn-close {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: transparent;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-xl);
+.modal-header h2 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink);
+  margin: 0;
+  letter-spacing: var(--ls-none);
+}
+
+.btn-close-modal {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  color: var(--color-steel);
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all var(--transition-fast);
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-.btn-close:hover {
-  background-color: var(--color-danger);
-  color: white;
+.btn-close-modal:active {
+  background: var(--color-surface);
+  color: var(--color-ink);
 }
 
-
-/* ==================== BOUTONS ==================== */
+/* ================================================================
+   BOUTONS — Système Mintlify
+================================================================ */
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-xl);
-  border-radius: var(--radius-btn);
-  font-weight: var(--font-weight-semibold);
+  gap: var(--spacing-xs);
+  padding: 10px 20px;
+  border-radius: var(--radius-full);          /* pill universal */
   font-size: var(--font-size-base);
-  transition: all var(--transition-default);
-  box-shadow: var(--shadow-button);
+  font-weight: var(--font-weight-medium);
+  font-family: var(--font-body);
+  line-height: 1.30;
+  transition: all var(--transition-fast);
   cursor: pointer;
+  white-space: nowrap;
+  border: none;
+  text-decoration: none;
 }
 
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.btn:active {
-  transform: translateY(0);
-}
-
+/* Primary — bouton noir pill dominant */
+.btn-primary,
 .btn-gold {
-  background-color: var(--color-accent-gold);
-  color: var(--color-bg-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
 }
 
-.btn-gold:hover {
-  filter: brightness(1.1);
+.btn-primary:active,
+.btn-gold:active {
+  background: var(--color-charcoal);
 }
 
+/* Accent green — mint Mintlify */
+.btn-accent {
+  background: var(--color-brand-green);
+  color: var(--color-ink);
+  border: none;
+}
+
+.btn-accent:active {
+  background: var(--color-brand-green-deep);
+}
+
+/* Secondary — outlined pill */
 .btn-secondary {
-  background-color: var(--color-bg-card);
-  color: var(--color-text-primary);
-  border: var(--border-width-thin) solid var(--color-border);
+  background: transparent;
+  color: var(--color-ink);
+  border: 1px solid var(--color-hairline);
 }
 
-.btn-secondary:hover {
-  border-color: var(--color-accent-gold);
-  color: var(--color-accent-gold);
+.btn-secondary:active {
+  background: var(--color-surface);
 }
 
+/* Danger — rouge */
 .btn-danger {
-  background-color: var(--color-danger);
-  color: white;
+  background: var(--color-brand-error);
+  color: #fff;
+  border: none;
 }
 
-.btn-danger:hover {
+.btn-danger:active {
   filter: brightness(0.9);
 }
 
+/* Ghost — compact, radius-md */
+.btn-ghost {
+  background: transparent;
+  color: var(--color-ink);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+}
 
-/* ==================== FORMULAIRES ==================== */
+.btn-ghost:active {
+  background: var(--color-surface);
+}
+
+/* On dark — white pill pour hero sombre */
+.btn-on-dark {
+  background: var(--color-on-dark);
+  color: var(--color-ink);
+  border: none;
+}
+
+/* Disabled */
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  background: var(--color-hairline);
+  color: var(--color-steel);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ================================================================
+   FORMULAIRES
+================================================================ */
 
 .input-group {
   margin-bottom: var(--spacing-lg);
@@ -326,12 +310,12 @@ code {
 
 .input-group label {
   display: block;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-steel);
+  margin-bottom: var(--spacing-xs);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--ls-micro);
 }
 
 .input-wrapper {
@@ -345,100 +329,237 @@ input[type="search"],
 textarea,
 select {
   width: 100%;
-  padding: var(--spacing-md);
-  background-color: var(--color-bg-card);
-  border: var(--border-width-thin) solid var(--color-border);
-  border-radius: var(--radius-input);
-  color: var(--color-text-primary);
+  height: 40px;
+  padding: 0 var(--spacing-md);
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  color: var(--color-ink);
   font-size: var(--font-size-base);
-  transition: all var(--transition-fast);
+  font-family: var(--font-body);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+textarea {
+  height: auto;
+  padding: var(--spacing-sm) var(--spacing-md);
+  resize: vertical;
 }
 
 input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: var(--color-accent-gold);
+  border-color: var(--color-brand-green);
+  border-width: 2px;
   box-shadow: var(--shadow-focus);
 }
 
 input::placeholder {
-  color: var(--color-text-secondary);
-  opacity: 0.6;
+  color: var(--color-steel);
 }
 
 .error-message {
-  color: var(--color-danger);
-  font-size: var(--font-size-sm);
-  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-base);
+  color: var(--color-brand-error);
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(239,68,68,0.06);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: var(--radius-md);
 }
 
-
-/* ==================== FOCUS VISIBLE ==================== */
-
+/* ================================================================
+   FOCUS VISIBLE (accessibilité)
+================================================================ */
 *:focus-visible {
-  outline: 2px solid var(--color-accent-gold);
+  outline: 2px solid var(--color-brand-green);
   outline-offset: 2px;
 }
 
-
-/* ==================== SCROLLBAR PERSONNALISÉE ==================== */
-
+/* ================================================================
+   SCROLLBAR (WebKit)
+================================================================ */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background-color: var(--color-bg-primary);
+  background: var(--color-surface);
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--color-bg-card);
-  border-radius: 5px;
-  border: 2px solid var(--color-bg-primary);
+  background: var(--color-stone);
+  border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-accent-gold);
+  background: var(--color-steel);
 }
 
+/* ================================================================
+   BADGES
+================================================================ */
 
-/* ==================== ANIMATIONS PRÊTES (utilisées étape 6) ==================== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.40;
+}
+
+.badge-green {
+  background: var(--color-brand-green);
+  color: var(--color-ink);
+}
+
+.badge-error {
+  background: var(--color-brand-error);
+  color: #fff;
+}
+
+.badge-warn {
+  background: var(--color-brand-warn);
+  color: var(--color-ink);
+}
+
+.badge-neutral {
+  background: var(--color-surface);
+  color: var(--color-steel);
+  border: 1px solid var(--color-hairline);
+}
+
+/* Status badges (table) */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-micro);
+}
+
+.status-badge.attente {
+  background: var(--color-surface);
+  color: var(--color-steel);
+  border: 1px solid var(--color-hairline);
+}
+
+.status-badge.entre {
+  background: var(--color-brand-green-soft);
+  color: #059669;
+  border: 1px solid rgba(0,212,164,0.2);
+}
+
+/* Dot indicator */
+.status-badge.attente::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--color-steel);
+  display: block;
+}
+
+.status-badge.entre::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #059669;
+  display: block;
+}
+
+/* ================================================================
+   QR PREVIEW (modal admin)
+================================================================ */
+
+.qr-preview {
+  text-align: center;
+  padding: var(--spacing-xxl);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-hairline);
+  margin: var(--spacing-xl) 0;
+}
+
+.qr-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-steel);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-micro);
+  margin-bottom: var(--spacing-md);
+}
+
+#qr-image {
+  max-width: 180px;
+  margin: 0 auto var(--spacing-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2);
+}
+
+.qr-code-text {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-base);
+  color: var(--color-ink);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 1px;
+}
+
+/* ================================================================
+   ANIMATIONS
+================================================================ */
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    transform: translateY(30px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-24px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
 }
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
-  20%, 40%, 60%, 80% { transform: translateX(10px); }
+  15%, 45%, 75% { transform: translateX(-8px); }
+  30%, 60%, 90% { transform: translateX(8px); }
 }
 
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-20px); }
-  60% { transform: translateY(-10px); }
+@keyframes pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.04); opacity: 0.9; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Animate-bounce pour l'icône succès */
+.animate-bounce {
+  animation: pop var(--transition-bounce);
+}
+
+.animate-shake {
+  animation: shake 0.45s ease;
+}
+
+.animate-pulse {
+  animation: pulse 0.6s ease;
 }

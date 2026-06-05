@@ -1,187 +1,210 @@
 /**
- * Styles pour l'overlay de résultats de scan (3 états)
- * États : VALIDE, DÉJÀ UTILISÉ, INVALIDE
- * Animations préparées pour l'étape 6
+ * result.css — Overlay résultats de scan (3 états)
+ * Valide / Déjà utilisé / Invalide — Mintlify Design System
  */
 
-/* ==================== OVERLAY BASE ==================== */
+/* ================================================================
+   OVERLAY BASE
+================================================================ */
 
 #scan-result-overlay {
-  /* Styles d'overlay déjà définis dans main.css */
   animation: fadeIn var(--transition-default);
 }
 
-
-/* ==================== ÉTAT BASE (CARTE RÉSULTAT) ==================== */
+/* ================================================================
+   CARTE RÉSULTAT (base)
+================================================================ */
 
 .result-state {
-  max-width: 700px;
+  max-width: 560px;
   width: 90%;
-  padding: var(--spacing-3xl) var(--spacing-2xl);
-  border-radius: var(--radius-card);
+  padding: var(--spacing-xxxl) var(--spacing-xxl);
+  border-radius: var(--radius-lg);
+  background: var(--color-canvas);
   text-align: center;
-  box-shadow: var(--shadow-overlay);
+  border: 1px solid var(--color-hairline);
+  box-shadow: var(--shadow-3);
   animation: slideUp var(--transition-slow);
+  position: relative;
+  overflow: hidden;
 }
 
+/* Ligne top colorée selon l'état */
+.result-state::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.result-valid::before   { background: var(--color-brand-green); }
+.result-warning::before { background: var(--color-brand-warn); }
+.result-danger::before  { background: var(--color-brand-error); }
+
 .result-state h1 {
-  font-family: var(--font-display);
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-tight);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--ls-none);
+  line-height: var(--line-height-snug);
   margin-bottom: var(--spacing-lg);
-  color: var(--color-text-primary);
 }
 
 .result-state .subtitle {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-md);
+  color: var(--color-slate);
+  margin-bottom: var(--spacing-sm);
 }
 
 .result-state .timestamp {
   font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-sm);
+  color: var(--color-steel);
+  margin-bottom: var(--spacing-xs);
+  font-family: var(--font-mono);
 }
 
 .result-state .code {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
   font-family: var(--font-mono);
-  color: var(--color-text-secondary);
+  color: var(--color-steel);
   margin-top: var(--spacing-lg);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-surface);
+  border-radius: var(--radius-xs);
+  display: inline-block;
 }
 
 .result-state .note {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  color: var(--color-steel);
   margin-top: var(--spacing-xl);
-  font-style: italic;
+  font-style: normal;
 }
 
 .highlight {
-  color: var(--color-accent-gold);
-  font-weight: var(--font-weight-bold);
+  color: var(--color-ink);
+  font-weight: var(--font-weight-semibold);
 }
 
-
-/* ==================== ICÔNES DE RÉSULTAT ==================== */
+/* ================================================================
+   ICÔNES DE RÉSULTAT — cercle coloré Mintlify
+================================================================ */
 
 .icon-success,
 .icon-warning,
 .icon-error {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto var(--spacing-2xl);
-  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--spacing-xxl);
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 72px;
-  font-weight: bold;
-  box-shadow: var(--shadow-card);
-}
-
-
-/* ==================== ÉTAT 1 : INVITATION VALIDE ==================== */
-
-.result-valid {
-  background: linear-gradient(135deg, 
-    rgba(46, 204, 113, 0.15) 0%, 
-    rgba(46, 204, 113, 0.05) 100%);
-  border: var(--border-width-medium) solid var(--color-success);
+  font-size: 36px;
+  font-weight: var(--font-weight-bold);
+  position: relative;
 }
 
 .icon-success {
-  background-color: var(--color-success);
-  color: white;
-}
-
-.result-valid h1 {
-  color: var(--color-success);
-}
-
-
-/* ==================== ÉTAT 2 : INVITATION DÉJÀ UTILISÉE ==================== */
-
-.result-warning {
-  background: linear-gradient(135deg, 
-    rgba(243, 156, 18, 0.15) 0%, 
-    rgba(243, 156, 18, 0.05) 100%);
-  border: var(--border-width-medium) solid var(--color-warning);
+  background: var(--color-brand-green-soft);
+  color: var(--color-brand-green);
+  border: 2px solid rgba(0,212,164,0.25);
 }
 
 .icon-warning {
-  background-color: var(--color-warning);
-  color: var(--color-bg-primary);
-}
-
-.result-warning h1 {
-  color: var(--color-warning);
-}
-
-
-/* ==================== ÉTAT 3 : INVITATION INVALIDE ==================== */
-
-.result-danger {
-  background: linear-gradient(135deg, 
-    rgba(231, 76, 60, 0.15) 0%, 
-    rgba(231, 76, 60, 0.05) 100%);
-  border: var(--border-width-medium) solid var(--color-danger);
+  background: rgba(245,158,11,0.08);
+  color: var(--color-brand-warn);
+  border: 2px solid rgba(245,158,11,0.25);
 }
 
 .icon-error {
-  background-color: var(--color-danger);
-  color: white;
+  background: rgba(239,68,68,0.08);
+  color: var(--color-brand-error);
+  border: 2px solid rgba(239,68,68,0.2);
+}
+
+/* ================================================================
+   ÉTAT 1 : VALIDE
+================================================================ */
+
+.result-valid {
+  background: var(--color-canvas);
+}
+
+.result-valid h1 {
+  color: var(--color-ink);
+}
+
+/* ================================================================
+   ÉTAT 2 : DÉJÀ UTILISÉ
+================================================================ */
+
+.result-warning {
+  background: var(--color-canvas);
+}
+
+.result-warning h1 {
+  color: var(--color-ink);
+}
+
+/* ================================================================
+   ÉTAT 3 : INVALIDE
+================================================================ */
+
+.result-danger {
+  background: var(--color-canvas);
 }
 
 .result-danger h1 {
-  color: var(--color-danger);
+  color: var(--color-ink);
 }
 
+/* ================================================================
+   BOUTON FERMER L'OVERLAY
+================================================================ */
 
-/* ==================== ANIMATIONS (PRÉPARÉES POUR ÉTAPE 6) ==================== */
-
-/* Animation "door-open" pour l'état valide */
-.result-state[data-animate="door-open"] {
-  /* Animation à implémenter en JS à l'étape 6 */
-  animation: slideUp var(--transition-slow), pulse var(--transition-slow) 0.3s;
+.overlay-close {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  width: 32px; height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  color: var(--color-steel);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
 }
 
-/* Animation "check-bounce" pour l'icône de succès */
-.icon-success[data-animate="check-bounce"] {
-  /* Animation à implémenter en JS à l'étape 6 */
-  animation: bounce var(--transition-bounce);
+.overlay-close:active {
+  background: var(--color-surface);
+  color: var(--color-ink);
 }
 
-/* Animation "shake" pour états warning/danger */
-.result-state[data-animate="shake"] {
-  /* Animation à implémenter en JS à l'étape 6 */
-  animation: slideUp var(--transition-slow), shake 0.5s;
-}
-
-
-/* ==================== RESPONSIVE ==================== */
+/* ================================================================
+   RESPONSIVE
+================================================================ */
 
 @media (max-width: 768px) {
   .result-state {
-    padding: var(--spacing-2xl) var(--spacing-lg);
+    padding: var(--spacing-xxl) var(--spacing-lg);
   }
-  
+
   .result-state h1 {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-xl);
   }
-  
-  .result-state .subtitle {
-    font-size: var(--font-size-lg);
-  }
-  
+
   .icon-success,
   .icon-warning,
   .icon-error {
-    width: 90px;
-    height: 90px;
-    font-size: 56px;
+    width: 64px;
+    height: 64px;
+    font-size: 28px;
+    margin-bottom: var(--spacing-xl);
   }
 }

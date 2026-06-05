@@ -2,46 +2,57 @@
  * scan.js
  * Cœur du système de scan. Gère le polling vidéo, les événements SSE (Server-Sent Events),
  * et les animations CSS de la page principale (Overlay).
+ *
+ * IDs DOM (index.html) :
+ *   #scan-result-overlay       → overlay principal
+ *   .result-valid / .result-warning / .result-danger  → blocs état
+ *   #result-name               → nom invité (état valide)
+ *   #result-table              → numéro table (état valide)
+ *   #result-time               → heure entrée (état valide)
+ *   #result-warning-name       → nom invité (état warning)
+ *   #result-first-scan         → date premier scan (état warning)
+ *   #result-invalid-code       → code invalide (état danger)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     // === VÉRIFICATION DU CONTEXTE ===
-    // Ce script ne doit tourner que sur la page d'accueil (index.html)
     const isScanPage = document.getElementById('camera-feed') !== null;
     if (!isScanPage) return;
 
     // === CONSTANTES & ÉLÉMENTS DOM ===
     const POLL_INTERVAL = 5000; // 5 secondes
-    
+
     const els = {
         clockTime: document.getElementById('system-clock'),
         clockDate: document.getElementById('system-date'),
-        
+
         camStatusBadge: document.getElementById('camera-status'),
-        camImage: document.getElementById('camera-feed'),
-        
-        statTotal: document.getElementById('counter-total'),
-        statEntered: document.getElementById('counter-entered'),
+        camImage:       document.getElementById('camera-feed'),
+
+        statTotal:    document.getElementById('counter-total'),
+        statEntered:  document.getElementById('counter-entered'),
         statProgress: document.getElementById('counter-progress'),
-        
-        // Overlays de résultats
-        overlayMain: document.getElementById('result-overlay'),
-        resultValid: document.getElementById('result-valid'),
-        resultWarning: document.getElementById('result-warning'),
-        resultDanger: document.getElementById('result-danger'),
-        
-        // Éléments dynamiques des résultats
-        resNom: document.getElementById('result-nom-invite'),
-        resTable: document.getElementById('result-table-numero'),
-        resMessage: document.getElementById('result-message'),
-        resDate: document.getElementById('result-date-scan'),
-        
-        // Portes pour animation
-        doorLeft: document.querySelector('.door-left'),
-        doorRight: document.querySelector('.door-right'),
-        
-        // Bouton suivant
-        btnNext: document.getElementById('btn-next-scan')
+        progressLabel: document.getElementById('progress-label'),
+
+        // Overlay principal (scan-result-overlay dans index.html)
+        overlayMain: document.getElementById('scan-result-overlay'),
+
+        // Blocs d'état (sélection par classe dans l'overlay)
+        resultValid:   document.querySelector('.result-valid'),
+        resultWarning: document.querySelector('.result-warning'),
+        resultDanger:  document.querySelector('.result-danger'),
+
+        // Champs dynamiques — VALIDE
+        resNom:   document.getElementById('result-name'),
+        resTable: document.getElementById('result-table'),
+        resTime:  document.getElementById('result-time'),
+
+        // Champs dynamiques — DÉJÀ UTILISÉ
+        resWarningNom:  document.getElementById('result-warning-name'),
+        resFirstScan:   document.getElementById('result-first-scan'),
+
+        // Champs dynamiques — INVALIDE
+        resInvalidCode: document.getElementById('result-invalid-code'),
     };
 
     let resultTimeout = null;
@@ -61,28 +72,23 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchStats();
         }, POLL_INTERVAL);
 
-        // Fallback si l'image vidéo crashe
-        if (els.camImage) {
-            els.camImage.onerror = () => {
-                window.utils.showToast("Erreur flux vidéo", "error");
-                els.camStatusBadge.textContent = "HORS LIGNE";
-                els.camStatusBadge.className = "status-badge status-danger";
-            };
-        }
-
-        // Fermeture manuelle de l'overlay
-        if (els.btnNext) {
-            els.btnNext.addEventListener('click', closeResultOverlay);
+        // Fermeture de l'overlay au clic sur l'overlay lui-même
+        if (els.overlayMain) {
+            els.overlayMain.addEventListener('click', closeResultOverlay);
         }
     }
 
     function startClock() {
         if (!els.clockTime || !els.clockDate) return;
-        
+
         const update = () => {
             const now = new Date();
-            els.clockTime.textContent = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-            els.clockDate.textContent = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            els.clockTime.textContent = now.toLocaleTimeString('fr-FR', {
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+            els.clockDate.textContent = now.toLocaleDateString('fr-FR', {
+                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+            });
         };
         update();
         setInterval(update, 1000);
@@ -90,41 +96,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchCameraStatus() {
         if (!els.camStatusBadge) return;
-        const res = await window.api.getCameraStatus();
-        if (res.success && res.data.available) {
-            els.camStatusBadge.textContent = "EN LIGNE";
-            els.camStatusBadge.className = "status-badge status-success";
-        } else {
-            els.camStatusBadge.textContent = "HORS LIGNE";
-            els.camStatusBadge.className = "status-badge status-danger";
+        try {
+            const res = await window.api.getCameraStatus();
+            const badge = els.camStatusBadge;
+            if (res.success && res.data.available) {
+                badge.dataset.status = 'online';
+                badge.querySelector('.status-icon').textContent = '🟢';
+                badge.querySelector('.status-text').textContent = 'Caméra EN LIGNE';
+            } else {
+                badge.dataset.status = 'offline';
+                badge.querySelector('.status-icon').textContent = '🔴';
+                badge.querySelector('.status-text').textContent = 'Caméra HORS LIGNE';
+            }
+        } catch {
+            if (els.camStatusBadge) {
+                els.camStatusBadge.dataset.status = 'offline';
+            }
         }
     }
 
     async function fetchStats() {
         if (!els.statTotal) return;
-        const res = await window.api.getScanStats();
-        if (res.success) {
-            els.statTotal.textContent = res.data.total_invites;
-            els.statEntered.textContent = res.data.deja_entres;
-            
-            // Calcul barre de progression si l'élément existe
-            if (els.statProgress) {
-                els.statProgress.style.width = res.data.taux_entree + '%';
+        try {
+            const res = await window.api.getScanStats();
+            if (res.success) {
+                els.statTotal.textContent   = res.data.total_invites;
+                els.statEntered.textContent = res.data.deja_entres;
+
+                if (els.statProgress) {
+                    const pct = res.data.taux_entree || 0;
+                    els.statProgress.value = pct;
+                    els.statProgress.max   = 100;
+                }
+                if (els.progressLabel) {
+                    els.progressLabel.textContent = (res.data.taux_entree || 0) + '%';
+                }
             }
-        }
+        } catch { /* silencieux */ }
     }
 
     // === PARTIE 2 : SERVER-SENT EVENTS (SSE) ===
 
     function setupSSE() {
         evtSource = new EventSource('/scan/events');
-        
+
         evtSource.onopen = () => {
-            window.utils.showToast("Scanner connecté au serveur.", "success");
+            if (window.utils && window.utils.showToast) {
+                window.utils.showToast('Scanner connecté au serveur.', 'success');
+            }
         };
 
         evtSource.onerror = () => {
-            window.utils.showToast("Connexion au serveur perdue. Reconnexion...", "error");
+            if (window.utils && window.utils.showToast) {
+                window.utils.showToast('Connexion au serveur perdue. Reconnexion...', 'error');
+            }
         };
 
         evtSource.onmessage = (e) => {
@@ -132,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const payload = JSON.parse(e.data);
                 handleServerEvent(payload.type, payload.data);
             } catch (err) {
-                console.error("Erreur parsing SSE :", err);
+                console.error('Erreur parsing SSE :', err);
             }
         };
     }
@@ -140,121 +165,142 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleServerEvent(type, data) {
         if (type === 'scan_result') {
             afficherResultat(data);
-            // Rafraîchissement immédiat des stats sans attendre le polling
-            fetchStats();
-        } 
+            fetchStats();  // Rafraîchissement immédiat des stats
+        }
         else if (type === 'camera_status') {
-            if (els.camStatusBadge) {
-                if (data.available) {
-                    els.camStatusBadge.textContent = "EN LIGNE";
-                    els.camStatusBadge.className = "status-badge status-success";
-                    window.utils.showToast("Caméra rebranchée", "info");
-                } else {
-                    els.camStatusBadge.textContent = "HORS LIGNE";
-                    els.camStatusBadge.className = "status-badge status-danger";
-                    window.utils.showToast("Caméra déconnectée", "error");
-                }
-            }
+            fetchCameraStatus();
         }
         else if (type === 'system') {
-            window.utils.showToast(data.message || data.action, "info");
+            if (window.utils && window.utils.showToast) {
+                window.utils.showToast(data.message || data.action, 'info');
+            }
         }
     }
 
     // === PARTIE 3 : AFFICHAGE RÉSULTAT ===
 
     function afficherResultat(data) {
-        if (!els.overlayMain) return;
+        if (!els.overlayMain) {
+            console.warn('scan.js: #scan-result-overlay introuvable dans le DOM.');
+            return;
+        }
 
-        // Stratégie de REMPLACEMENT IMMÉDIAT : on clear le timer s'il y en a un
+        // Clear timer précédent (remplacement immédiat)
         if (resultTimeout) {
             clearTimeout(resultTimeout);
+            resultTimeout = null;
         }
 
-        // 1. Cacher tous les états
-        if(els.resultValid) els.resultValid.classList.add('hidden');
-        if(els.resultWarning) els.resultWarning.classList.add('hidden');
-        if(els.resultDanger) els.resultDanger.classList.add('hidden');
+        // 1. Masquer tous les états
+        [els.resultValid, els.resultWarning, els.resultDanger].forEach(el => {
+            if (el) el.classList.add('hidden');
+        });
 
-        // Reset animations
-        if (els.doorLeft) els.doorLeft.classList.remove('open');
-        if (els.doorRight) els.doorRight.classList.remove('open');
+        // 2. Choisir l'état et remplir les données
+        const statut = data.statut;
+        const now    = new Date();
+        const heure  = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-        // 2. Remplir les données et choisir l'état
-        if (data.statut === 'valide') {
-            // -- SCÉNARIO: VALIDE --
-            if(els.resNom) els.resNom.textContent = data.nom_invite;
-            if(els.resTable) els.resTable.textContent = `Table ${data.table_numero || '?'}`;
-            if(els.resultValid) els.resultValid.classList.remove('hidden');
-            
-            // Lancer animations Valid
-            setTimeout(() => {
-                if (els.doorLeft) els.doorLeft.classList.add('open');
-                if (els.doorRight) els.doorRight.classList.add('open');
-                // L'animation bounce est gérée en CSS sur l'icône si on lui ajoute une classe
-                const icon = els.resultValid.querySelector('.icon-circle');
-                if (icon) {
-                    icon.classList.remove('animate-bounce');
-                    void icon.offsetWidth; // Trigger reflow
-                    icon.classList.add('animate-bounce');
-                }
-            }, 50);
-
-            // TODO PHASE 4: Son bienvenue.mp3
-        } 
-        else if (data.statut === 'deja_utilise') {
-            // -- SCÉNARIO: DÉJÀ ENTRÉ (WARNING) --
-            if(els.resultWarning) els.resultWarning.classList.remove('hidden');
-            const warnNom = document.getElementById('warning-nom-invite');
-            if(warnNom) warnNom.textContent = data.nom_invite;
-            if(els.resDate) els.resDate.textContent = window.utils.formatTime(data.date_scan);
-            
-            // Lancer animations Warning
-            const icon = els.resultWarning.querySelector('.icon-circle');
-            if (icon) {
-                icon.classList.remove('animate-pulse');
-                void icon.offsetWidth;
-                icon.classList.add('animate-pulse');
+        if (statut === 'valide') {
+            if (els.resNom)   els.resNom.textContent   = data.nom_invite || '—';
+            if (els.resTable) els.resTable.textContent = data.table_numero || '?';
+            if (els.resTime)  els.resTime.textContent  = heure;
+            if (els.resultValid) els.resultValid.classList.remove('hidden');
+        }
+        else if (statut === 'deja_utilise') {
+            if (els.resWarningNom) els.resWarningNom.textContent = data.nom_invite || '—';
+            if (els.resFirstScan) {
+                // Formatage date_scan (ISO → lisible)
+                const d = data.date_scan ? new Date(data.date_scan) : null;
+                els.resFirstScan.textContent = d
+                    ? d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+                    : 'date inconnue';
             }
-
-            // TODO PHASE 4: Son alerte douce.mp3
-        } 
+            if (els.resultWarning) els.resultWarning.classList.remove('hidden');
+        }
         else {
-            // -- SCÉNARIO: INVALIDE (DANGER) --
-            if(els.resultDanger) els.resultDanger.classList.remove('hidden');
-            if(els.resMessage) els.resMessage.textContent = data.message || "Ce QR code n'existe pas dans la base de données.";
-            
-            // Lancer animations Danger
-            const icon = els.resultDanger.querySelector('.icon-circle');
-            if (icon) {
-                icon.classList.remove('animate-shake');
-                void icon.offsetWidth;
-                icon.classList.add('animate-shake');
-            }
-
-            // TODO PHASE 4: Son alerte forte.mp3
+            // Invalide
+            if (els.resInvalidCode) els.resInvalidCode.textContent = data.code_qr || '—';
+            if (els.resultDanger) els.resultDanger.classList.remove('hidden');
         }
 
-        // 3. Afficher l'overlay principal
+        // 3. Afficher l'overlay
         els.overlayMain.classList.remove('hidden');
+        els.overlayMain.dataset.state = statut;
 
-        // 4. Programmer la fermeture automatique après 5 secondes
-        resultTimeout = setTimeout(() => {
-            closeResultOverlay();
-        }, 5000);
+        // 4. Fermeture automatique après 5 s
+        resultTimeout = setTimeout(closeResultOverlay, 5000);
     }
 
     function closeResultOverlay() {
         if (!els.overlayMain) return;
         els.overlayMain.classList.add('hidden');
-        if (els.doorLeft) els.doorLeft.classList.remove('open');
-        if (els.doorRight) els.doorRight.classList.remove('open');
+        els.overlayMain.dataset.state = 'idle';
         if (resultTimeout) {
             clearTimeout(resultTimeout);
             resultTimeout = null;
         }
     }
 
+    // === PARTIE 4 : PANNEAU CONNEXION MOBILE ===
+
+    function initMobilePanel() {
+        const toggleBtn  = document.getElementById('mobile-panel-toggle');
+        const panelBody  = document.getElementById('mobile-panel-body');
+        const toggleIcon = document.getElementById('mobile-toggle-icon');
+        const urlText    = document.getElementById('mobile-url-text');
+
+        if (!toggleBtn || !panelBody) return;
+
+        // Toggle collapse / expand
+        toggleBtn.addEventListener('click', () => {
+            const isHidden = panelBody.hasAttribute('hidden');
+            if (isHidden) {
+                panelBody.removeAttribute('hidden');
+                toggleBtn.setAttribute('aria-expanded', 'true');
+                if (toggleIcon) toggleIcon.textContent = '▴';
+            } else {
+                panelBody.setAttribute('hidden', '');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+                if (toggleIcon) toggleIcon.textContent = '▾';
+            }
+        });
+
+        // Fetch IP locale depuis le backend
+        fetch('/api/local-ip')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && urlText) {
+                    urlText.textContent = data.url_mobile;
+                }
+            })
+            .catch(() => {
+                if (urlText) urlText.textContent = 'IP non disponible';
+            });
+    }
+
+    // === RESET SCANNER ===
+
+    function initResetButton() {
+        const btnReset = document.getElementById('btn-reset');
+        if (!btnReset) return;
+
+        // Afficher le bouton reset seulement si URL contient ?debug=1
+        if (new URLSearchParams(window.location.search).has('debug')) {
+            btnReset.classList.remove('hidden');
+            btnReset.addEventListener('click', async () => {
+                try {
+                    await fetch('/scan/reset', { method: 'POST' });
+                    if (window.utils && window.utils.showToast) {
+                        window.utils.showToast('Scanner réinitialisé', 'info');
+                    }
+                } catch { /* silencieux */ }
+            });
+        }
+    }
+
     // GO
     init();
+    initMobilePanel();
+    initResetButton();
 });

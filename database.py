@@ -132,6 +132,18 @@ def get_invite_by_qr(code_qr: str) -> Optional[Dict[str, Any]]:
         logging.error(f"Erreur lors de la récupération du QR {code_qr}: {e}")
         return None
 
+def get_invite_par_id(id_invite: int) -> Optional[Dict[str, Any]]:
+    """Récupère les informations d'un invité via son ID."""
+    try:
+        with get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM invitations WHERE id = ?', (id_invite,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+    except Exception as e:
+        logging.error(f"Erreur lors de la récupération de l'invité ID {id_invite}: {e}")
+        return None
+
 def marquer_entre(code_qr: str) -> bool:
     """Marque un invité comme 'entré' et enregistre l'heure du scan."""
     try:

@@ -49,7 +49,8 @@ class EventBroadcaster:
     def broadcast(self, event_type: str, data: dict):
         """
         Envoie un événement à tous les clients connectés.
-        ⚠️ SYNCHRONE: Peut être appelé depuis un thread séparé (ex: caméra).
+        ⚠️ SYNCHRONE: Doit être appelé depuis un thread séparé (ex: thread caméra).
+        Pour les coroutines async (endpoints FastAPI), utilisez broadcast_async().
         """
         if self.loop is None:
             logger.warning("Broadcaster: Appel à broadcast() avant set_loop(). Ignoré.")
@@ -64,8 +65,37 @@ class EventBroadcaster:
         # Délègue l'exécution de la publication à la boucle principale (thread-safe)
         self.loop.call_soon_threadsafe(self._publish_to_queues, event)
 
+    async def broadcast_async(self, event_type: str, data: dict):
+        """
+        Version async de broadcast() — à utiliser depuis les endpoints FastAPI (async def).
+        Pousse directement l'événement dans les queues SSE sans passer par call_soon_threadsafe.
+        """
+        logger.info(f"broadcast_async() appelé: type={event_type}, clients connectés={len(self.queues)}")
+        event = {
+            "type": event_type,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "data": data
+        }
+        json_event = json.dumps(event)
+        dead_queues = set()
+        sent_count = 0
+        for q in self.queues:
+            try:
+                q.put_nowait(json_event)
+                sent_count += 1
+            except asyncio.QueueFull:
+                logger.warning("Queue client pleine, événement SSE droppé.")
+            except Exception as e:
+                logger.error(f"Erreur envoi SSE à une queue: {e}")
+                dead_queues.add(q)
+        # Nettoyer les queues mortes
+        if dead_queues:
+            self.queues -= dead_queues
+            logger.info(f"Queues mortes nettoyées: {len(dead_queues)}")
+        logger.info(f"broadcast_async() terminé: événement envoyé à {sent_count}/{len(self.queues) + len(dead_queues)} clients")
+
     def _publish_to_queues(self, event: dict):
-        """Exécuté dans la boucle asyncio: pousse l'event dans chaque queue."""
+        """Exécuté dans la boucle asyncio depuis un thread séparé: pousse l'event dans chaque queue."""
         json_event = json.dumps(event)
         for q in self.queues:
             try:

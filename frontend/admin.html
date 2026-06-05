@@ -3,26 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Administration - Gestion des invités</title>
+  <meta name="description" content="Administration — Gestion des invités du mariage">
+  <title>Administration — Gestion des invités</title>
+
+  <!-- Google Fonts : Inter + Geist Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="/css/variables.css">
   <link rel="stylesheet" href="/css/main.css">
   <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
+
+  <!-- TOP NAV ADMIN -->
+  <nav class="admin-nav" aria-label="Navigation administration">
+    <div class="nav-brand" style="display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;color:var(--color-ink)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="8" r="5"/>
+        <path d="M20 21a8 8 0 1 0-16 0"/>
+      </svg>
+      <span>Mariage — Administration</span>
+    </div>
+    <nav class="header-actions" style="display:flex;gap:12px;align-items:center;">
+      <button id="btn-network-info" class="btn btn-ghost" title="Informations réseau">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        Réseau
+      </button>
+      <a href="/scan.html" id="btn-back-to-scan" class="btn btn-secondary">
+        ← Retour au scan
+      </a>
+    </nav>
+  </nav>
+
   <main class="admin-screen">
-    
-    <!-- HEADER ADMINISTRATION -->
+
+    <!-- HEADER TITRE + STATS -->
     <header class="admin-header">
       <h1>Gestion des invités</h1>
-      <nav class="header-actions">
-        <a href="/index.html" id="btn-back-to-scan" class="btn btn-secondary">
-          ← Retour au scan
-        </a>
-      </nav>
+      <div class="header-actions">
+        <a href="/scan.html" class="btn btn-secondary">← Retour au scan</a>
+      </div>
     </header>
-    
+
     <!-- STATISTIQUES (4 CARTES) -->
-    <section class="stats-grid">
+    <section class="stats-grid" role="region" aria-label="Statistiques globales">
       <div class="stat-card">
         <span id="stat-total" class="stat-value">0</span>
         <span class="stat-label">Total invités</span>
@@ -40,129 +70,217 @@
         <span class="stat-label">Taux d'entrée</span>
       </div>
     </section>
-    
+
     <!-- BARRE D'ACTIONS -->
-    <section class="actions-bar">
+    <section class="actions-bar" role="search">
       <div class="search-group">
-        <input 
-          id="search-input" 
-          type="search" 
-          placeholder="Rechercher un invité par nom ou code..."
+        <input
+          id="search-input"
+          type="search"
+          placeholder="Rechercher un invité par nom ou code…"
           aria-label="Rechercher un invité"
+          autocomplete="off"
         >
       </div>
       <div class="action-buttons">
-        <button id="btn-add-invite" class="btn btn-gold">
+        <button id="btn-add-invite" class="btn btn-primary">
           + Ajouter un invité
         </button>
         <button id="btn-import-csv" class="btn btn-secondary">
-          📥 Importer CSV
+          Importer CSV
         </button>
         <button id="btn-export-csv" class="btn btn-secondary">
-          📤 Exporter CSV
+          Exporter CSV
         </button>
       </div>
     </section>
-    
+
+    <!-- FILTERS BAR -->
+    <section class="filters-bar">
+      <div class="filter-group">
+        <label for="filter-status">Statut:</label>
+        <select id="filter-status" class="filter-select">
+          <option value="all">Tous</option>
+          <option value="entré">Entrés</option>
+          <option value="attente">En attente</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="filter-table">Table:</label>
+        <select id="filter-table" class="filter-select">
+          <option value="all">Toutes</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="sort-by">Trier par:</label>
+        <select id="sort-by" class="filter-select">
+          <option value="nom">Nom</option>
+          <option value="date_scan">Date scan</option>
+          <option value="table">Table</option>
+          <option value="statut">Statut</option>
+        </select>
+      </div>
+
+      <div class="bulk-actions hidden" id="bulk-actions-bar">
+        <span class="bulk-count" id="bulk-count">0 sélectionnés</span>
+        <button id="btn-bulk-export" class="btn btn-secondary btn-sm">
+          Exporter sélection
+        </button>
+        <button id="btn-bulk-delete" class="btn btn-secondary btn-sm">
+          Supprimer sélection
+        </button>
+      </div>
+    </section>
+
     <!-- TABLEAU DES INVITÉS -->
-    <section class="table-container">
-      <table id="invites-table">
+    <section class="table-container" role="region" aria-label="Liste des invités">
+      <table id="invites-table" aria-label="Tableau des invités">
         <thead>
           <tr>
-            <th>Code QR</th>
-            <th>Nom de l'invité</th>
-            <th>Couple</th>
-            <th>Table</th>
-            <th>Statut</th>
-            <th>Date scan</th>
-            <th>Actions</th>
+            <th scope="col" class="checkbox-cell">
+              <input type="checkbox" id="select-all" aria-label="Tout sélectionner">
+            </th>
+            <th scope="col">Code QR</th>
+            <th scope="col">Nom de l'invité</th>
+            <th scope="col">QR Code</th>
+            <th scope="col">Table</th>
+            <th scope="col">Statut</th>
+            <th scope="col">Date scan</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody id="invites-tbody">
-          <!-- HOOK : Rempli dynamiquement par admin.js (Étape 6) -->
           <tr class="empty-state">
-            <td colspan="7">
+            <td colspan="8">
               <div class="empty-message">
                 <p>Aucun invité pour le moment</p>
-                <p class="empty-hint">Cliquez sur "Ajouter un invité" pour commencer</p>
+                <p class="empty-hint">Cliquez sur « Ajouter un invité » pour commencer</p>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
     </section>
-    
-    <!-- MODAL AJOUTER INVITÉ (caché par défaut) -->
-    <div id="modal-add-invite" class="modal hidden">
-      <div class="modal-content">
-        <header class="modal-header">
-          <h2>Ajouter un invité</h2>
-          <button id="btn-close-modal" class="btn-close" aria-label="Fermer la modal">
-            ✕
-          </button>
-        </header>
-        
-        <form id="form-add-invite">
-          <div class="input-group">
-            <label for="input-nom">Nom de l'invité</label>
-            <input 
-              id="input-nom" 
-              name="nom_invite" 
-              type="text" 
-              required 
-              placeholder="Ex: Jean Dupont"
-              autocomplete="name"
-            >
+
+  </main>
+
+  <!-- MODAL AJOUTER / MODIFIER INVITÉ -->
+  <div id="modal-add-invite" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+      <header class="modal-header">
+        <h2 id="modal-title">Ajouter un invité</h2>
+        <button class="btn-close-modal" aria-label="Fermer la fenêtre">&times;</button>
+      </header>
+
+      <form id="form-add-invite" novalidate>
+        <div class="input-group">
+          <label for="input-nom">Nom de l'invité</label>
+          <input
+            id="input-nom"
+            name="nom_invite"
+            type="text"
+            required
+            placeholder="Ex : Jean Dupont"
+            autocomplete="name"
+          >
+        </div>
+
+        <div class="input-group">
+          <label for="input-couple">Nom du couple marié</label>
+          <input
+            id="input-couple"
+            name="couple_nom"
+            type="text"
+            required
+            placeholder="Ex : Sarah & Thomas"
+          >
+        </div>
+
+        <div class="input-group">
+          <label for="input-table">Numéro de table <span style="text-transform:none;font-weight:400;color:var(--color-stone)">(optionnel)</span></label>
+          <input
+            id="input-table"
+            name="table_numero"
+            type="text"
+            placeholder="Ex : 5"
+          >
+        </div>
+
+        <!-- Zone de prévisualisation QR code -->
+        <div id="qr-preview" class="qr-preview hidden">
+          <p class="qr-label">QR Code généré</p>
+          <img id="qr-image" src="" alt="QR Code généré">
+          <p id="qr-code-text" class="qr-code-text"></p>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;height:44px;margin-top:var(--spacing-lg)">
+          Générer &amp; Ajouter
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Input caché pour import CSV -->
+  <input
+    id="csv-input"
+    type="file"
+    accept=".csv,.xlsx"
+    hidden
+    aria-label="Fichier CSV à importer"
+  >
+
+  <!-- MODAL INFORMATIONS RÉSEAU -->
+  <div id="modal-network-info" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <header class="modal-header">
+        <h2>Informations Réseau</h2>
+        <button class="btn-close-modal-network" aria-label="Fermer">&times;</button>
+      </header>
+
+      <div style="padding: var(--spacing-xl);">
+        <p style="margin-bottom: var(--spacing-lg); color: var(--color-steel);">
+          Utilisez ces adresses pour accéder à l'application depuis d'autres appareils sur le même réseau.
+        </p>
+
+        <div class="network-url-section">
+          <label style="display:block; font-weight:600; margin-bottom:8px;">Écran de Bienvenue</label>
+          <div class="url-box">
+            <code id="network-welcome-url">Chargement...</code>
+            <button class="btn-copy" data-copy="welcome" title="Copier">Copier</button>
           </div>
-          
-          <div class="input-group">
-            <label for="input-couple">Nom du couple marié</label>
-            <input 
-              id="input-couple" 
-              name="couple_nom" 
-              type="text" 
-              required 
-              placeholder="Ex: Sarah & Thomas"
-            >
+        </div>
+
+        <div class="network-url-section">
+          <label style="display:block; font-weight:600; margin-bottom:8px;">Interface de Scan</label>
+          <div class="url-box">
+            <code id="network-scan-url">Chargement...</code>
+            <button class="btn-copy" data-copy="scan" title="Copier">Copier</button>
           </div>
-          
-          <div class="input-group">
-            <label for="input-table">Numéro de table (optionnel)</label>
-            <input 
-              id="input-table" 
-              name="table_numero" 
-              type="text" 
-              placeholder="Ex: 5"
-            >
+        </div>
+
+        <div class="network-url-section">
+          <label style="display:block; font-weight:600; margin-bottom:8px;">Administration</label>
+          <div class="url-box">
+            <code id="network-admin-url">Chargement...</code>
+            <button class="btn-copy" data-copy="admin" title="Copier">Copier</button>
           </div>
-          
-          <!-- Zone de prévisualisation du QR code généré -->
-          <div id="qr-preview" class="qr-preview hidden">
-            <!-- HOOK : QR code ajouté dynamiquement par admin.js -->
-            <p class="qr-label">QR Code généré :</p>
-            <img id="qr-image" src="" alt="QR Code généré">
-            <p id="qr-code-text" class="qr-code-text"></p>
-          </div>
-          
-          <button type="submit" class="btn btn-gold">
-            Générer & Ajouter
-          </button>
-        </form>
+        </div>
+
+        <div style="margin-top: var(--spacing-xl); padding: var(--spacing-md); background: var(--color-surface); border-radius: var(--radius-md); border-left: 3px solid var(--color-brand-green);">
+          <p style="font-size: var(--font-size-sm); color: var(--color-steel); margin:0;">
+            <strong>IP Locale:</strong> <code id="network-local-ip">-</code><br>
+            <strong>Port:</strong> <code id="network-port">-</code><br>
+            <strong>Protocole:</strong> <code id="network-protocol">-</code>
+          </p>
+        </div>
       </div>
     </div>
-    
-    <!-- INPUT FILE CACHÉ POUR IMPORT CSV -->
-    <input 
-      id="csv-input" 
-      type="file" 
-      accept=".csv,.xlsx" 
-      hidden 
-      aria-label="Fichier CSV à importer"
-    >
-    
-  </main>
-  
-  <!-- Scripts JS (logique implémentée à l'Étape 6) -->
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
   <script src="/js/api.js"></script>
   <script src="/js/admin.js"></script>
 </body>

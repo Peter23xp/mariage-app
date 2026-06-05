@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0a12">
+  <title>Scanner QR – Mariage</title>
+  <style>
+    /* ================================================================
+       DESIGN SYSTEM
+    ================================================================ */
+    :root {
+      /* === Mintlify Design Tokens (mobile) === */
+      --bg:          #F8FAFC;           /* canvas/surface-light */
+      --bg-dark:     #0F2744;           /* hero-dark-from */
+      --surface:     #FFFFFF;           /* canvas */
+      --border:      #E5E7EB;           /* hairline */
+      --border-dark: rgba(255,255,255,0.10);
+      --mint:        #00D4A4;           /* brand-green */
+      --mint-deep:   #00B589;           /* brand-green-deep */
+      --mint-soft:   rgba(0,212,164,0.10);
+      --green:       #059669;           /* success text */
+      --orange:      #F59E0B;           /* brand-warn */
+      --red:         #EF4444;           /* brand-error */
+      --ink:         #0F172A;           /* primary text */
+      --slate:       #475569;           /* secondary text */
+      --steel:       #94A3B8;           /* muted/inactive */
+      --stone:       #CBD5E1;           /* captions */
+      --on-dark:     #FFFFFF;
+      --on-dark-muted: rgba(255,255,255,0.60);
+      --radius:      12px;              /* rounded.lg */
+      --safe-top:    env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      background: var(--bg-dark);
+      color: var(--on-dark);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+
+    /* ================================================================
+       LAYOUT
+    ================================================================ */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+    }
+
+    /* --- Header --- */
+    #header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: calc(var(--safe-top) + 12px) 16px 12px;
+      background: linear-gradient(to bottom, rgba(10,10,18,0.95), transparent);
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      z-index: 20;
+      gap: 12px;
+    }
+
+    #header h1 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--on-dark);
+      letter-spacing: -0.3px;
+      white-space: nowrap;
+    }
+
+    /* Indicateur de connexion serveur */
+    #server-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 100px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+
+    #status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--steel);
+      transition: background 0.4s, box-shadow 0.4s;
+      flex-shrink: 0;
+    }
+    #status-dot.connected { background: var(--mint); box-shadow: 0 0 6px var(--mint); }
+    #status-dot.error     { background: var(--red);  box-shadow: 0 0 6px var(--red);  }
+
+    #status-label {
+      font-size: 11px;
+      color: var(--on-dark-muted);
+      white-space: nowrap;
+    }
+
+    /* --- Camera area (fills available space) --- */
+    #camera-area {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    #canvas { display: none; }
+
+    /* --- Scan frame overlay --- */
+    #scan-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Vignetage autour du cadre */
+    #scan-overlay::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 68% 68% at 50% 50%,
+          transparent 36%,
+          rgba(0,0,0,0.65) 68%);
+    }
+
+    /* Cadre principal */
+    #scan-frame {
+      position: relative;
+      width: min(260px, 72vw);
+      height: min(260px, 72vw);
+      z-index: 1;
+    }
+
+    /* Animation de pulse sur le cadre quand on scanne */
+    #scan-frame.scanning {
+      animation: frame-pulse 0.3s ease-out;
+    }
+
+    @keyframes frame-pulse {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    /* Coins animés */
+    .corner {
+      position: absolute;
+      width: 28px; height: 28px;
+      border-color: var(--mint);
+      border-style: solid;
+      transition: border-color 0.3s;
+    }
+    .corner-tl { top: 0; left: 0;  border-width: 3px 0 0 3px; border-radius: 6px 0 0 0; }
+    .corner-tr { top: 0; right: 0; border-width: 3px 3px 0 0; border-radius: 0 6px 0 0; }
+    .corner-bl { bottom: 0; left: 0;  border-width: 0 0 3px 3px; border-radius: 0 0 0 6px; }
+    .corner-br { bottom: 0; right: 0; border-width: 0 3px 3px 0; border-radius: 0 0 6px 0; }
+
+    #scan-frame.result-valid   .corner { border-color: var(--green); }
+    #scan-frame.result-warning .corner { border-color: var(--orange); }
+    #scan-frame.result-invalid .corner { border-color: var(--red); }
+
+    /* Barre de scan animée */
+    #scan-line {
+      position: absolute;
+      left: 4px; right: 4px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--mint), transparent);
+      box-shadow: 0 0 12px var(--mint);
+      border-radius: 2px;
+      animation: scan-sweep 2s ease-in-out infinite;
+    }
+
+    @keyframes scan-sweep {
+      0%   { top: 6px;   opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { top: calc(100% - 8px); opacity: 0; }
+    }
+
+    /* --- Hint label sous le cadre --- */
+    #hint {
+      position: absolute;
+      bottom: calc(36px + var(--safe-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      white-space: nowrap;
+      z-index: 10;
+      pointer-events: none;
+      letter-spacing: 0.2px;
+    }
+
+    /* ================================================================
+       RESULT PANEL (slide up from bottom)
+    ================================================================ */
+    #result-panel {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      z-index: 30;
+      transform: translateY(110%);
+      transition: transform 0.38s cubic-bezier(0.34, 1.3, 0.64, 1);
+      padding-bottom: var(--safe-bottom);
+      will-change: transform;
+    }
+
+    #result-panel.visible {
+      transform: translateY(0);
+    }
+
+    #result-card {
+      margin: 0 12px 12px;
+      border-radius: var(--radius);
+      padding: 22px 20px 24px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    #result-card.valid   {
+      background: rgba(0,212,164,0.10);
+      border-color: rgba(0,212,164,0.30);
+      box-shadow: 0 -4px 40px rgba(0,212,164,0.10);
+    }
+    #result-card.warning {
+      background: rgba(245,158,11,0.10);
+      border-color: rgba(245,158,11,0.30);
+      box-shadow: 0 -4px 40px rgba(245,158,11,0.08);
+    }
+    #result-card.invalid {
+      background: rgba(239,68,68,0.10);
+      border-color: rgba(239,68,68,0.30);
+      box-shadow: 0 -4px 40px rgba(239,68,68,0.08);
+    }
+
+    #result-icon {
+      font-size: 44px;
+      line-height: 1;
+      animation: pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes pop {
+      from { transform: scale(0.3); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    #result-name {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--on-dark);
+      line-height: 1.2;
+    }
+
+    #result-sub {
+      font-size: 13px;
+      color: var(--on-dark-muted);
+      line-height: 1.5;
+    }
+
+    #result-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 9999px;
+      background: rgba(255,255,255,0.12);
+      color: var(--on-dark-muted);
+      letter-spacing: 0.3px;
+    }
+
+    /* Barre de progression auto-close */
+    #result-progress-bar {
+      position: absolute;
+      bottom: 0; left: 12px; right: 12px;
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 0 0 var(--radius) var(--radius);
+      overflow: hidden;
+    }
+    #result-progress-fill {
+      height: 100%;
+      width: 100%;
+      background: var(--mint);
+      transform-origin: left;
+      transition: none;
+    }
+    #result-progress-fill.running {
+      transition: transform linear;
+    }
+
+    /* Loading spinner */
+    #loading-indicator {
+      display: none;
+      position: absolute;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      z-index: 25;
+      pointer-events: none;
+    }
+    #loading-indicator.active { display: flex; }
+
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(255,255,255,0.10);
+      border-top-color: var(--mint);
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ================================================================
+       ERROR / PERMISSION screens
+    ================================================================ */
+    #permission-screen, #error-screen {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 40;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      padding: 40px 32px;
+      text-align: center;
+      background: var(--bg);
+    }
+    #permission-screen.visible, #error-screen.visible { display: flex; }
+
+    .big-icon { font-size: 64px; line-height: 1; }
+    .screen-title { font-size: 22px; font-weight: 700; line-height: 1.2; }
+    .screen-msg {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.65;
+      max-width: 290px;
+    }
+    .screen-msg code {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 10px;
+      background: rgba(240,192,96,0.1);
+      border: 1px solid rgba(240,192,96,0.25);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--gold-light);
+      word-break: break-all;
+    }
+
+    .btn-retry {
+      margin-top: 4px;
+      padding: 13px 32px;
+      background: var(--mint);
+      color: var(--ink);
+      border: none;
+      border-radius: 9999px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      font-family: inherit;
+    }
+    .btn-retry:active { opacity: 0.80; transform: scale(0.97); }
+
+    /* ================================================================
+       iOS / HTTP FULL-SCREEN BLOCKER
+    ================================================================ */
+    #https-required-screen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: var(--bg-dark);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 40px 28px;
+      gap: 0;
+    }
+    #https-required-screen.visible { display: flex; }
+
+    .https-icon { font-size: 56px; margin-bottom: 20px; line-height: 1; }
+
+    .https-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--on-dark);
+      margin-bottom: 10px;
+      line-height: 1.25;
+    }
+
+    .https-sub {
+      font-size: 14px;
+      color: var(--on-dark-muted);
+      line-height: 1.60;
+      max-width: 320px;
+      margin-bottom: 28px;
+    }
+
+    .https-steps {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px;
+      padding: 20px 22px;
+      text-align: left;
+      max-width: 340px;
+      width: 100%;
+      margin-bottom: 24px;
+    }
+
+    .https-steps ol {
+      list-style: decimal;
+      padding-left: 20px;
+      margin: 0;
+    }
+
+    .https-steps li {
+      font-size: 14px;
+      color: var(--on-dark);
+      line-height: 1.55;
+      margin-bottom: 8px;
+    }
+
+    .https-steps li:last-child { margin-bottom: 0; }
+
+    .https-steps strong {
+      color: var(--mint);
+    }
+
+    .https-url-box {
+      background: rgba(0,212,164,0.08);
+      border: 1px solid rgba(0,212,164,0.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-family: 'Geist Mono', 'SF Mono', Menlo, monospace;
+      color: var(--mint);
+      word-break: break-all;
+      text-align: center;
+      max-width: 340px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .btn-https-retry {
+      padding: 14px 36px;
+      background: var(--mint);
+      color: var(--ink);
+      border: none;
+      border-radius: 9999px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-https-retry:active { opacity: 0.80; transform: scale(0.97); }
+
+    /* ================================================================
+       SCAN COUNT BADGE (coin bas-droit)
+    ================================================================ */
+    #scan-counter {
+      position: absolute;
+      bottom: calc(10px + var(--safe-bottom));
+      right: 14px;
+      z-index: 15;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      pointer-events: none;
+    }
+    #scan-count-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--mint);
+      line-height: 1;
+      text-shadow: 0 2px 8px rgba(0,212,164,0.3);
+      font-family: 'Geist Mono', 'SF Mono', Menlo, monospace;
+    }
+    #scan-count-label {
+      font-size: 9px;
+      color: var(--on-dark-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- iOS/HTTP Blocker Screen : affiché si HTTP sur iPhone -->
+<div id="https-required-screen">
+  <div class="https-icon">🔒</div>
+  <div class="https-title">HTTPS requis pour la caméra</div>
+  <div class="https-sub">
+    iOS Safari bloque l'accès caméra en HTTP.<br>
+    Ouvrez cette page en <strong style="color:var(--mint)">HTTPS</strong>
+    et acceptez le certificat.
+  </div>
+
+  <div class="https-url-box" id="https-url-display">chargement…</div>
+
+  <div class="https-steps">
+    <ol>
+      <li>Ouvrez l'URL ci-dessus dans <strong>Safari</strong></li>
+      <li>Safari affiche <em>"Connexion non privée"</em></li>
+      <li>Appuyez sur <strong>Afficher les détails</strong></li>
+      <li>Appuyez sur <strong>Consulter ce site web</strong></li>
+      <li>Confirmez dans la popup → la caméra s'active 📷</li>
+    </ol>
+  </div>
+
+  <button class="btn-https-retry" onclick="window.location.href = document.getElementById('https-url-display').textContent.trim()">
+    Ouvrir en HTTPS →
+  </button>
+</div>
+
+<div id="app">
+
+  <!-- Permission / error screens -->
+  <div id="permission-screen">
+    <div class="big-icon">📷</div>
+    <div class="screen-title">Accès à la caméra</div>
+    <div class="screen-msg">
+      Autorisez l'accès à la caméra pour scanner les codes QR des invités.
+      <br><br>
+      Sur iOS, appuyez sur <em>Autoriser</em> dans la popup Safari.
+    </div>
+    <button class="btn-retry" id="btn-allow-camera" onclick="startCamera()">Autoriser la caméra</button>
+  </div>
+
+  <div id="error-screen">
+    <div class="big-icon">!</div>
+    <div class="screen-title" id="error-title">Erreur caméra</div>
+    <div class="screen-msg" id="error-msg">Impossible d'accéder à la caméra.</div>
+    <button class="btn-retry" onclick="location.reload()">Réessayer</button>
+  </div>
+
+  <!-- Header -->
+  <div id="header">
+    <h1>Scanner Invité</h1>
+    <div id="server-indicator">
+      <span id="status-dot"></span>
+      <span id="status-label">Connexion…</span>
+    </div>
+  </div>
+
+  <!-- Camera feed + overlay -->
+  <div id="camera-area">
+    <video id="video" autoplay muted playsinline></video>
+    <canvas id="canvas"></canvas>
+
+    <!-- Scan frame -->
+    <div id="scan-overlay">
+      <div id="scan-frame">
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+        <div id="scan-line"></div>
+      </div>
+    </div>
+
+    <!-- Loading spinner (visible pendant l'envoi) -->
+    <div id="loading-indicator">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Hint -->
+    <div id="hint">Pointez le QR code dans le cadre</div>
+
+    <!-- Compteur de scans de session -->
+    <div id="scan-counter">
+      <span id="scan-count-value">0</span>
+      <span id="scan-count-label">scans</span>
+    </div>
+
+    <!-- Result panel (slide up) -->
+    <div id="result-panel">
+      <div id="result-card">
+        <div id="result-icon"></div>
+        <div id="result-name"></div>
+        <div id="result-badge"></div>
+        <div id="result-sub"></div>
+      </div>
+      <div id="result-progress-bar">
+        <div id="result-progress-fill"></div>
+      </div>
+    </div>
+
+  </div><!-- /camera-area -->
+</div><!-- /app -->
+
+<!--
+  jsQR v1.4.0 — Licence Apache-2.0
+  Chargé en local depuis /js/jsqr.min.js (téléchargé au démarrage serveur)
+  CDN fallback uniquement si le fichier local est absent (premier démarrage).
+-->
+<script>
+// ----------------------------------------------------------------
+// Configuration
+// ----------------------------------------------------------------
+const SERVER_BASE    = window.location.origin;
+const SCAN_ENDPOINT  = `${SERVER_BASE}/scan/api/scan`;
+const ANTI_DOUBLE_MS = 3000;   // ms entre deux scans du même code
+const RESULT_HIDE_MS = 5000;   // ms avant masquage automatique du résultat
+const SCAN_INTERVAL_MS = 100;  // ms entre deux analyses (~10fps)
+
+// ----------------------------------------------------------------
+// State
+// ----------------------------------------------------------------
+let video, canvas, ctx;
+let stream        = null;
+let scanLoop      = null;
+let lastScanned   = {};       // { code: timestamp }
+let resultTimeout = null;
+let jsQRReady     = false;
+let sessionScans  = 0;        // compteur de scans valides/invalides de la session
+let isPaused      = false;    // pause pendant envoi réseau
+
+// ----------------------------------------------------------------
+// DOM refs
+// ----------------------------------------------------------------
+const permissionScreen = document.getElementById('permission-screen');
+const errorScreen      = document.getElementById('error-screen');
+const httpsScreen      = document.getElementById('https-required-screen');
+const statusDot        = document.getElementById('status-dot');
+const statusLabel      = document.getElementById('status-label');
+const loadingIndicator = document.getElementById('loading-indicator');
+const resultPanel      = document.getElementById('result-panel');
+const resultCard       = document.getElementById('result-card');
+const resultIcon       = document.getElementById('result-icon');
+const resultName       = document.getElementById('result-name');
+const resultBadge      = document.getElementById('result-badge');
+const resultSub        = document.getElementById('result-sub');
+const scanFrame        = document.getElementById('scan-frame');
+const iosWarning       = null; // remplacé par httpsScreen
+const scanCountValue   = document.getElementById('scan-count-value');
+const progressFill     = document.getElementById('result-progress-fill');
+
+// ----------------------------------------------------------------
+// Détection iOS / HTTPS — affiche l'écran bloquant si nécessaire
+// ----------------------------------------------------------------
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+function checkHttps() {
+  const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
+  const isHttps = location.protocol === 'https:';
+
+  // Si on est déjà en HTTPS → tout va bien
+  if (isHttps || isLocal) return true;
+
+  // HTTP + n'importe quel appareil (iOS bloque, Android Chrome peut fonctionner mais c'est rare en local)
+  // On affiche l'écran de redirection HTTPS pour tous (iOS surtout)
+  const httpsUrl = location.href.replace(/^http:\/\//i, 'https://')
+                                 .replace(/:8000/, ':8888');
+
+  const urlBox = document.getElementById('https-url-display');
+  if (urlBox) urlBox.textContent = httpsUrl;
+
+  // Sur iOS : bloquer complètement (getUserMedia indisponible)
+  if (isIOS()) {
+    if (httpsScreen) httpsScreen.classList.add('visible');
+    return false;
+  }
+
+  // Sur Android Chrome HTTP : getUserMedia peut fonctionner mais prévenir
+  // On affiche un bandeau discret sans bloquer
+  const banner = document.createElement('div');
+  banner.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    background: rgba(245,158,11,0.92); color: #0F172A;
+    font-size: 12px; font-weight: 600;
+    padding: 8px 14px; text-align: center; line-height: 1.5;
+  `;
+  banner.innerHTML = `Attention: Pour meilleures performances, ouvrez : 
+    <a href="${httpsUrl}" style="color:#0F172A;text-decoration:underline">${httpsUrl}</a>`;
+  document.body.prepend(banner);
+
+  return true; // On laisse continuer sur Android
+}
+
+// ----------------------------------------------------------------
+// Chargement jsQR (local d'abord, CDN en fallback)
+// ----------------------------------------------------------------
+function loadJsQR() {
+  return new Promise((resolve, reject) => {
+    const tryLoad = (src, fallbackSrc) => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = () => { jsQRReady = true; resolve(); };
+      s.onerror = () => {
+        if (fallbackSrc) {
+          console.warn(`jsQR: ${src} indisponible, fallback CDN...`);
+          tryLoad(fallbackSrc, null);
+        } else {
+          reject(new Error('jsQR indisponible en local et via CDN'));
+        }
+      };
+      document.head.appendChild(s);
+    };
+
+    // Toujours essayer le local en premier (fonctionne 100% offline)
+    tryLoad('/js/jsqr.min.js', 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js');
+  });
+}
+
+// ----------------------------------------------------------------
+// Caméra
+// ----------------------------------------------------------------
+async function startCamera() {
+  permissionScreen.classList.remove('visible');
+  errorScreen.classList.remove('visible');
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showError(
+      'Navigateur incompatible',
+      'getUserMedia n\'est pas supporté.\nUtilisez Chrome Android ou Safari iOS 14.5+.\n\nSi vous êtes sur iOS, HTTPS est requis.'
+    );
+    return;
+  }
+
+  try {
+    // Arrêter le stream précédent si existant
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+    }
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: 'environment' },  // Caméra arrière préférée
+        width:  { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      audio: false
+    });
+
+    video.srcObject = stream;
+    await video.play();
+
+    // Synchroniser canvas au format réel de la vidéo
+    video.addEventListener('loadedmetadata', () => {
+      canvas.width  = video.videoWidth  || 640;
+      canvas.height = video.videoHeight || 480;
+    }, { once: true });
+
+    startScanLoop();
+
+  } catch (err) {
+    handleCameraError(err);
+  }
+}
+
+function handleCameraError(err) {
+  console.error('Camera error:', err.name, err.message);
+  if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+    permissionScreen.classList.add('visible');
+  } else if (err.name === 'NotFoundError') {
+    showError('Aucune caméra', 'Aucune caméra disponible sur cet appareil.');
+  } else if (err.name === 'NotReadableError') {
+    showError('Caméra occupée', 'La caméra est utilisée par une autre app. Fermez-la et réessayez.');
+  } else if (err.name === 'OverconstrainedError') {
+    // Retry sans contraintes
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      .then(s => { stream = s; video.srcObject = s; video.play(); startScanLoop(); })
+      .catch(e => showError('Erreur caméra', e.message));
+  } else {
+    showError('Erreur caméra', `${err.name}: ${err.message}`);
+  }
+}
+
+function showError(title, msg) {
+  document.getElementById('error-title').textContent = title;
+  document.getElementById('error-msg').innerHTML = msg.replace(/\n/g, '<br>');
+  errorScreen.classList.add('visible');
+}
+
+// ----------------------------------------------------------------
+// Boucle de scan (canvas + jsQR)
+// ----------------------------------------------------------------
+function startScanLoop() {
+  if (scanLoop) clearInterval(scanLoop);
+  scanLoop = setInterval(processFrame, SCAN_INTERVAL_MS);
+}
+
+function processFrame() {
+  if (!jsQRReady || !video || video.readyState < 2 || isPaused) return;
+
+  const w = video.videoWidth;
+  const h = video.videoHeight;
+  if (!w || !h) return;
+
+  if (canvas.width !== w)  canvas.width  = w;
+  if (canvas.height !== h) canvas.height = h;
+
+  ctx.drawImage(video, 0, 0, w, h);
+
+  let imageData;
+  try {
+    imageData = ctx.getImageData(0, 0, w, h);
+  } catch (e) {
+    return;
+  }
+
+  const code = jsQR(imageData.data, imageData.width, imageData.height, {
+    inversionAttempts: 'dontInvert'
+  });
+
+  if (code && code.data) {
+    handleDetected(code.data.trim());
+  }
+}
+
+// ----------------------------------------------------------------
+// QR détecté → POST serveur
+// ----------------------------------------------------------------
+async function handleDetected(qrCode) {
+  const now      = Date.now();
+  const lastTime = lastScanned[qrCode] || 0;
+
+  // Anti-double-scan côté client
+  if (now - lastTime < ANTI_DOUBLE_MS) return;
+  lastScanned[qrCode] = now;
+
+  // Feedback haptique
+  if (navigator.vibrate) navigator.vibrate(50);
+
+  // Pause scan pendant envoi
+  isPaused = true;
+  hideResult();
+  loadingIndicator.classList.add('active');
+
+  // Animation du cadre
+  scanFrame.classList.add('scanning');
+  setTimeout(() => scanFrame.classList.remove('scanning'), 350);
+
+  try {
+    const resp = await fetch(SCAN_ENDPOINT, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ code_qr: qrCode }),
+      signal:  AbortSignal.timeout(8000)
+    });
+
+    loadingIndicator.classList.remove('active');
+
+    if (!resp.ok) {
+      throw new Error(`HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    sessionScans++;
+    if (scanCountValue) scanCountValue.textContent = sessionScans;
+    showResult(data);
+
+  } catch (err) {
+    loadingIndicator.classList.remove('active');
+    console.error('Scan POST error:', err);
+    showResult({
+      statut:     'invalide',
+      code_qr:    qrCode,
+      nom_invite: null,
+      message:    `Erreur de connexion (${err.message})`
+    });
+  } finally {
+    // Reprendre le scan après 1 seconde
+    setTimeout(() => { isPaused = false; }, 1000);
+  }
+}
+
+// ----------------------------------------------------------------
+// Affichage résultat
+// ----------------------------------------------------------------
+function showResult(data) {
+  if (resultTimeout) {
+    clearTimeout(resultTimeout);
+    resultTimeout = null;
+  }
+
+  const statut = data.statut;
+
+  // Reset classe du card
+  resultCard.className = '';
+
+  // Correspondance statut → style
+  const styleMap = {
+    valide:       { cls: 'valid',   icon: 'V', frameCls: 'result-valid'   },
+    deja_utilise: { cls: 'warning', icon: '!', frameCls: 'result-warning' },
+    invalide:     { cls: 'invalid', icon: 'X', frameCls: 'result-invalid'  }
+  };
+  const style = styleMap[statut] || styleMap.invalide;
+
+  resultCard.classList.add(style.cls);
+  resultIcon.textContent = style.icon;
+
+  // Couleur des coins du cadre
+  scanFrame.classList.remove('result-valid', 'result-warning', 'result-invalid');
+  scanFrame.classList.add(style.frameCls);
+  setTimeout(() => scanFrame.classList.remove(style.frameCls), 2000);
+
+  // Contenu selon le statut
+  if (statut === 'valide') {
+    resultName.textContent  = data.nom_invite || 'Invité validé';
+    resultBadge.textContent = data.table_numero ? `Table ${data.table_numero}` : '';
+    resultSub.textContent   = data.message || 'Bienvenue !';
+    if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+  } else if (statut === 'deja_utilise') {
+    resultName.textContent  = data.nom_invite || 'Invitation';
+    resultBadge.textContent = 'Déjà scannée';
+    resultSub.textContent   = data.message || 'Invitation déjà utilisée';
+    if (navigator.vibrate) navigator.vibrate([150, 80, 150]);
+  } else {
+    resultName.textContent  = 'Code non reconnu';
+    resultBadge.textContent = '';
+    resultSub.textContent   = data.message || 'QR invalide';
+    if (navigator.vibrate) navigator.vibrate(400);
+  }
+
+  // Afficher le panel
+  resultPanel.classList.add('visible');
+
+  // Barre de progression d'auto-close
+  if (progressFill) {
+    progressFill.classList.remove('running');
+    progressFill.style.transform = 'scaleX(1)';
+    // Forcer reflow
+    void progressFill.offsetWidth;
+    progressFill.style.transitionDuration = RESULT_HIDE_MS + 'ms';
+    progressFill.classList.add('running');
+    progressFill.style.transform = 'scaleX(0)';
+  }
+
+  resultTimeout = setTimeout(hideResult, RESULT_HIDE_MS);
+}
+
+function hideResult() {
+  resultPanel.classList.remove('visible');
+  if (progressFill) {
+    progressFill.classList.remove('running');
+    progressFill.style.transform = 'scaleX(1)';
+  }
+}
+
+// Tap sur le panel = fermeture manuelle
+resultPanel.addEventListener('click', () => {
+  if (resultTimeout) clearTimeout(resultTimeout);
+  resultTimeout = null;
+  hideResult();
+});
+
+// ----------------------------------------------------------------
+// Vérification connectivité serveur (polling)
+// ----------------------------------------------------------------
+async function checkServer() {
+  try {
+    const resp = await fetch(`${SERVER_BASE}/scan/stats`, {
+      signal: AbortSignal.timeout(3000)
+    });
+    if (resp.ok) {
+      statusDot.className   = 'connected';
+      statusLabel.textContent = 'Serveur OK';
+    } else {
+      throw new Error('HTTP ' + resp.status);
+    }
+  } catch {
+    statusDot.className   = 'error';
+    statusLabel.textContent = 'Hors ligne';
+  }
+}
+
+// ----------------------------------------------------------------
+// Init
+// ----------------------------------------------------------------
+async function init() {
+  video  = document.getElementById('video');
+  canvas = document.getElementById('canvas');
+  ctx    = canvas.getContext('2d', { willReadFrequently: true });
+
+  // Vérification iOS HTTPS (avertissement, non bloquant sur Android)
+  checkHttps();
+
+  // Statut serveur
+  checkServer();
+  setInterval(checkServer, 12000);
+
+  // Charger jsQR (local puis CDN)
+  try {
+    await loadJsQR();
+  } catch (e) {
+    showError(
+      'jsQR manquant',
+      'La bibliothèque de décodage QR est introuvable.\n' +
+      'Vérifiez que le fichier /js/jsqr.min.js est bien présent sur le serveur.'
+    );
+    return;
+  }
+
+  // Démarrer la caméra
+  await startCamera();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

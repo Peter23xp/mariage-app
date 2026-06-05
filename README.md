@@ -29,8 +29,44 @@ L'application ouvrira les services sur le port local `8000`.
 
 ## Utilisation
 
-- **Interface de Scan** : Ouvrir `http://localhost:8000/` pour lancer la caméra et scanner les QR codes.
-- **Panneau d'Administration** : Ouvrir `http://localhost:8000/admin.html` pour gérer les invités, ajouter des personnes manuellement, ou importer une liste depuis un fichier CSV/Excel.
+### Accès à l'Application
+
+**URL Principale (Écran de Bienvenue) :**
+- `https://localhost:8888/` ou `https://192.168.x.x:8888/`
+- **Page par défaut** - Affiche l'écran de bienvenue avec animations
+- À afficher en plein écran sur écran secondaire/projecteur
+
+**Interface de Scan :**
+- `https://localhost:8888/scan.html` ou `https://192.168.x.x:8888/scan.html`
+- Scanner les QR codes des invités
+
+**Panneau d'Administration :**
+- `https://localhost:8888/admin.html` ou `https://192.168.x.x:8888/admin.html`
+- Gérer les invités (login requis : `admin123` ou `3Nathalie?`)
+
+**Page de Login :**
+- `https://localhost:8888/login.html`
+
+### Fonctionnalités Principales
+
+#### Interface Admin
+- ✅ Gestion CRUD des invités
+- ✅ Import/Export CSV
+- ✅ Filtres avancés (statut, table, recherche)
+- ✅ Sélection multiple et actions en masse
+- ✅ Génération de QR codes et invitations PDF
+- ✅ Statistiques en temps réel
+- ✅ Interface responsive sans émojis
+
+#### Écran de Bienvenue Secondaire (NOUVEAU)
+- ✅ Affichage élégant sur écran secondaire/projecteur
+- ✅ Photo des mariés avec animations de particules
+- ✅ Messages de bienvenue personnalisés en temps réel
+- ✅ Animation de confettis colorés
+- ✅ Badge de numéro de table
+- ✅ Complètement configurable (noms, durée, couleurs)
+
+**📖 Voir [.kiro/WELCOME_DISPLAY.md](.kiro/WELCOME_DISPLAY.md) pour la configuration complète de l'écran de bienvenue.**
 
 ## Structure du Projet
 - `main.py` : Point d'entrée de l'application et serveur FastAPI.

@@ -32,8 +32,8 @@ def admin_login(req: LoginRequest):
     # "admin123" hashé: 240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9
     # Simulation pour simplifier : On valide si le mot de passe correspond à la clé d'admin
     # Dans un vrai cas, on irait chercher la clé hashée dans la table config
-    attendu = "admin123" 
-    if req.password == attendu:
+    mots_de_passe_autorises = ["admin123", "3Nathalie?"] 
+    if req.password in mots_de_passe_autorises:
         return {"success": True, "message": "Connexion réussie"}
     raise HTTPException(status_code=401, detail="Mot de passe incorrect")
 

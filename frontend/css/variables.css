@@ -1,105 +1,186 @@
 /**
- * Design System - Variables CSS
- * Palette imposée pour l'application Mariage
+ * Design System — Tokens Mintlify
+ * ChizaApp / Mariage App
+ *
+ * Palette inspirée Mintlify : Inter + Geist Mono, mint accent, noir pill, surfaces canvas.
  */
 
 :root {
-  /* ==================== COULEURS ==================== */
-  
-  /* Fondations */
-  --color-bg-primary: #0F0F1A;      /* Noir velours - Fond principal */
-  --color-bg-card: #1E1E30;         /* Bleu nuit - Cartes et panneaux */
-  
-  /* Accent */
-  --color-accent-gold: #C9A84C;     /* Or champagne - Accent principal */
-  
-  /* Texte */
-  --color-text-primary: #F0EAD6;    /* Blanc crème - Texte principal */
-  --color-text-secondary: #8A8A9A;  /* Gris doux - Texte secondaire */
-  
-  /* États */
-  --color-success: #2ECC71;         /* Vert émeraude - Validation */
-  --color-warning: #F39C12;         /* Ambre - Avertissement */
-  --color-danger: #E74C3C;          /* Rouge franc - Erreur */
-  
-  /* Bordures et séparateurs */
-  --color-border: rgba(201, 168, 76, 0.2);  /* Or semi-transparent */
-  
-  
-  /* ==================== TYPOGRAPHIE ==================== */
-  
-  /* Familles de police */
-  --font-display: 'Playfair Display', serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'Courier New', 'Consolas', monospace;
-  
-  /* Échelle typographique */
-  --font-size-xs: 12px;
-  --font-size-sm: 14px;
-  --font-size-base: 16px;
-  --font-size-lg: 20px;
-  --font-size-xl: 24px;
-  --font-size-2xl: 32px;
-  --font-size-3xl: 48px;
-  --font-size-4xl: 64px;
-  
+
+  /* ================================================================
+     BRAND & ACCENT
+  ================================================================ */
+  --color-brand-green:      #00D4A4;   /* Mint Mintlify — CTA accent, valide, focus */
+  --color-brand-green-deep: #00B589;   /* Pressed/active variant */
+  --color-brand-green-soft: rgba(0, 212, 164, 0.08); /* Background tint succès */
+  --color-brand-error:      #EF4444;   /* Invalide, champ requis */
+  --color-brand-warn:       #F59E0B;   /* Déjà utilisé, avertissement */
+  --color-testimonial:      #F97316;   /* Orange testimonial card */
+
+  /* ================================================================
+     SURFACES
+  ================================================================ */
+  --color-canvas:       #FFFFFF;       /* Fond principal, cartes */
+  --color-canvas-dark:  #0F172A;       /* Surfaces sombres, overlay */
+  --color-surface:      #F9FAFB;       /* Sections alternées, search pill */
+  --color-surface-soft: #F1F5F9;       /* FAQ, accordéons */
+  --color-surface-code: #1E293B;       /* Wrapper code blocks */
+  --color-hairline:     #E5E7EB;       /* Bordures 1px primaires */
+  --color-hairline-soft:#F1F5F9;       /* Séparateurs discrets */
+  --color-hairline-dark:rgba(255,255,255,0.08); /* Hairline sur fond sombre */
+
+  /* ================================================================
+     HERO ATMOSPHERIC
+  ================================================================ */
+  /* Scan desktop : hero band sombre teal → mint */
+  --color-hero-dark-from: #0F2744;
+  --color-hero-dark-to:   #0E4F42;
+  /* Login / pages légères : sky-blue → cream */
+  --color-hero-sky-from:  #EFF6FF;
+  --color-hero-sky-to:    #F8FAFC;
+
+  /* ================================================================
+     TEXTE
+  ================================================================ */
+  --color-ink:          #0F172A;       /* Titres, CTA text */
+  --color-charcoal:     #1E293B;       /* Corps texte, code inline */
+  --color-slate:        #475569;       /* Texte secondaire */
+  --color-steel:        #94A3B8;       /* Labels, nav inactif, table headers */
+  --color-stone:        #CBD5E1;       /* Captions, muted */
+  --color-muted:        #E2E8F0;       /* Disabled text */
+  --color-on-dark:      #FFFFFF;       /* Texte sur hero sombre */
+  --color-on-dark-muted:rgba(255,255,255,0.60); /* Méta sur fond sombre */
+
+  /* ================================================================
+     BOUTONS (alias sémantiques)
+  ================================================================ */
+  --color-primary:      #0F172A;       /* Bouton pill primaire (noir) */
+  --color-on-primary:   #FFFFFF;       /* Texte sur bouton primaire */
+
+  /* Compatibilité ancienne API (pour les composants qui utilisent encore ces noms) */
+  --color-bg-primary:   #F8FAFC;       /* Fond app global (light) */
+  --color-bg-card:      #FFFFFF;       /* Cartes */
+  --color-accent-gold:  #00D4A4;       /* Redirect → brand-green */
+  --color-text-primary: #0F172A;       /* Redirect → ink */
+  --color-text-secondary: #475569;     /* Redirect → slate */
+  --color-success:      #00D4A4;       /* Redirect → brand-green */
+  --color-warning:      #F59E0B;       /* Redirect → brand-warn */
+  --color-danger:       #EF4444;       /* Redirect → brand-error */
+  --color-border:       #E5E7EB;       /* Redirect → hairline */
+
+  /* ================================================================
+     TYPOGRAPHIE
+  ================================================================ */
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:    'Geist Mono', 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Échelle */
+  --font-size-xs:   11px;   /* micro-uppercase */
+  --font-size-sm:   13px;   /* caption */
+  --font-size-base: 14px;   /* body-sm */
+  --font-size-md:   16px;   /* body-md */
+  --font-size-lg:   18px;   /* subtitle / heading-5 */
+  --font-size-xl:   22px;   /* heading-4 */
+  --font-size-2xl:  28px;   /* heading-3 */
+  --font-size-3xl:  36px;   /* heading-2 */
+  --font-size-4xl:  48px;   /* heading-1 */
+  --font-size-5xl:  56px;   /* display-lg */
+  --font-size-6xl:  72px;   /* hero-display */
+
   /* Poids */
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
+  --font-weight-normal:   400;
+  --font-weight-medium:   500;
   --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-  
-  /* Hauteur de ligne */
-  --line-height-tight: 1.2;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.75;
-  
-  
-  /* ==================== ESPACEMENTS ==================== */
-  
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-2xl: 48px;
-  --spacing-3xl: 64px;
-  
-  
-  /* ==================== BORDURES ==================== */
-  
-  --radius-card: 16px;
-  --radius-btn: 10px;
-  --radius-input: 8px;
-  --radius-small: 6px;
-  
-  --border-width-thin: 1px;
+  --font-weight-bold:     700;
+
+  /* Interlignage */
+  --line-height-hero:    1.05;
+  --line-height-tight:   1.15;
+  --line-height-snug:    1.25;
+  --line-height-normal:  1.50;
+  --line-height-relaxed: 1.65;
+
+  /* Letter spacing */
+  --ls-hero:       -2px;
+  --ls-display:    -1.5px;
+  --ls-heading-1:  -1px;
+  --ls-heading-2:  -0.5px;
+  --ls-none:       0;
+  --ls-micro:      0.5px;
+
+  /* ================================================================
+     ESPACEMENTS (base 4px)
+  ================================================================ */
+  --spacing-xxs:      4px;
+  --spacing-xs:       8px;
+  --spacing-sm:       12px;
+  --spacing-md:       16px;
+  --spacing-lg:       20px;
+  --spacing-xl:       24px;
+  --spacing-xxl:      32px;
+  --spacing-xxxl:     40px;
+  --spacing-section-sm: 48px;
+  --spacing-section:    64px;
+  --spacing-section-lg: 96px;
+  --spacing-hero:      120px;
+
+  /* Alias ancien système */
+  --spacing-2xl:  var(--spacing-section-sm);
+  --spacing-3xl:  var(--spacing-section);
+
+  /* ================================================================
+     BORDER RADIUS
+  ================================================================ */
+  --radius-xs:   4px;     /* inline code chips, micro tags */
+  --radius-sm:   6px;     /* sidebar nav, type badges */
+  --radius-md:   8px;     /* inputs, code blocks, search pill */
+  --radius-lg:   12px;    /* cards, pricing, FAQ */
+  --radius-xl:   16px;    /* feature panels */
+  --radius-xxl:  24px;    /* showcase tiles */
+  --radius-full: 9999px;  /* TOUS les boutons */
+
+  /* Alias ancien système */
+  --radius-card:  var(--radius-lg);
+  --radius-btn:   var(--radius-full);
+  --radius-input: var(--radius-md);
+  --radius-small: var(--radius-sm);
+
+  /* Épaisseurs de bordures */
+  --border-width-thin:   1px;
   --border-width-medium: 2px;
-  --border-width-thick: 3px;
-  
-  
-  /* ==================== TRANSITIONS ==================== */
-  
-  --transition-fast: 150ms ease-in-out;
-  --transition-default: 300ms ease-in-out;
-  --transition-slow: 500ms ease-in-out;
-  
-  --transition-bounce: 600ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  
-  
-  /* ==================== OMBRES ==================== */
-  
-  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3);
-  --shadow-overlay: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-button: 0 2px 8px rgba(0, 0, 0, 0.2);
-  --shadow-focus: 0 0 0 3px rgba(201, 168, 76, 0.3);
-  
-  
-  /* ==================== Z-INDEX ==================== */
-  
-  --z-base: 1;
+  --border-width-thick:  3px;
+
+  /* ================================================================
+     OMBRES (système plat — élévation stratégique)
+  ================================================================ */
+  --shadow-0: none;                                          /* flat */
+  --shadow-1: rgba(0,0,0,0.04) 0px 1px 2px 0px;            /* hover tile */
+  --shadow-2: rgba(0,0,0,0.08) 0px 4px 12px 0px;           /* cards */
+  --shadow-3: rgba(0,0,0,0.12) 0px 24px 48px -8px;         /* hero mockup */
+  --shadow-brand: rgba(0,212,164,0.08) 0px 8px 24px;        /* featured tier */
+
+  /* Alias ancien système */
+  --shadow-card:    var(--shadow-2);
+  --shadow-overlay: var(--shadow-3);
+  --shadow-button:  var(--shadow-1);
+  --shadow-focus:   0 0 0 3px rgba(0,212,164,0.25);
+
+  /* ================================================================
+     TRANSITIONS (150–200ms)
+  ================================================================ */
+  --transition-fast:    150ms ease;
+  --transition-default: 200ms ease;
+  --transition-slow:    300ms ease;
+  --transition-bounce:  400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ================================================================
+     Z-INDEX
+  ================================================================ */
+  --z-base:     1;
+  --z-sticky:   10;
   --z-dropdown: 100;
-  --z-overlay: 1000;
-  --z-modal: 2000;
-  --z-toast: 3000;
+  --z-overlay:  1000;
+  --z-modal:    2000;
+  --z-toast:    3000;
 }

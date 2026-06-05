@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Retour à l'accueil
     if (btnBack) {
         btnBack.addEventListener('click', () => {
-            window.location.href = '/';
+            window.location.href = '/scan.html';
         });
     }
 
@@ -28,10 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleBtn.addEventListener('click', () => {
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                toggleBtn.textContent = '👁️‍🗨️'; // Masquer (icône temporaire ou utiliser une icône SVG/feather existante)
+                toggleBtn.textContent = 'Masquer';
             } else {
                 passwordInput.type = 'password';
-                toggleBtn.textContent = '👁️'; // Afficher
+                toggleBtn.textContent = 'Afficher';
             }
         });
     }
@@ -55,14 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await window.api.login(password);
 
             if (response.success) {
-                // Stocke un token éphémère dans la session courante
+                // Stocke le token et redirige immédiatement
                 sessionStorage.setItem('admin_authenticated', 'true');
-                window.utils.showToast("Connexion réussie", "success");
-                
-                // Redirection
-                setTimeout(() => {
-                    window.location.href = '/admin.html';
-                }, 500);
+                console.log('Login successful, token set, redirecting to admin page');
+                window.location.href = '/admin.html';
+                return;
             } else {
                 showError(response.message || "Mot de passe incorrect.");
                 passwordInput.value = '';

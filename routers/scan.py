@@ -155,3 +155,80 @@ def reset_scanner():
     scanner.reset_scanner()
     broadcaster.broadcast("system", {"action": "reset_scanner"})
     return {"success": True, "message": "Scanner réinitialisé"}
+
+
+# ---------------------------------------------------------------------------
+# Endpoint scan mobile (caméra smartphone via navigateur)
+# ---------------------------------------------------------------------------
+
+class MobileScanRequest(BaseModel):
+    """Corps de requête envoyé par la page /scan-mobile (jsQR)."""
+    code_qr: str  # La validation du format est déléguée à database.valider_scan()
+
+
+@router.post("/api/scan", response_model=ScanResult)
+async def mobile_scan(request: MobileScanRequest):
+    """
+    Endpoint appelé par la page de scan mobile (POST depuis jsQR).
+
+    Partage le même pipeline que la caméra physique :
+      1. Validation BDD via database.valider_scan() (thread-safe, anti-double-scan BDD)
+      2. Mise à jour des stats en mémoire
+      3. Broadcast SSE → le desktop reçoit le résultat en temps réel
+
+    Point d'extension : compatible avec tout autre scanner (USB, etc.)
+    en changeant uniquement l'appelant, pas ce code.
+    """
+    code = request.code_qr.strip()
+
+    # 1. Validation BDD complète (même logique que le scanner physique)
+    resultat = database.valider_scan(code)
+
+    # 2. Mise à jour des stats en mémoire (même compteurs que la caméra)
+    if resultat["statut"] == "valide":
+        scanner.stats.increment_valide()
+    elif resultat["statut"] == "deja_utilise":
+        scanner.stats.increment_double()
+    elif resultat["statut"] == "invalide":
+        scanner.stats.increment_invalide()
+
+    # 3. Broadcast SSE vers tous les clients desktop connectés (version async obligatoire ici)
+    await broadcaster.broadcast_async("scan_result", resultat)
+
+    return ScanResult(**resultat)
+
+
+# ---------------------------------------------------------------------------
+# Endpoint de TEST pour vérifier le broadcast SSE
+# ---------------------------------------------------------------------------
+
+@router.get("/test-sse")
+async def test_sse_broadcast():
+    """
+    Endpoint de debug : envoie un faux scan_result SSE à tous les clients connectés.
+    Ouvrir dans le navigateur : https://192.168.1.87:8888/scan/test-sse
+    """
+    import logging
+    logger = logging.getLogger("scan")
+    
+    fake_result = {
+        "statut": "valide",
+        "code_qr": "TEST-DEBUG-001",
+        "nom_invite": "Invité Test SSE",
+        "couple_nom": "Test",
+        "table_numero": "99",
+        "date_scan": datetime.now().isoformat(),
+        "message": "Bienvenue (TEST SSE) !"
+    }
+    
+    nb_clients = len(broadcaster.queues)
+    logger.info(f"[TEST-SSE] Envoi d'un faux scan_result à {nb_clients} clients SSE")
+    
+    await broadcaster.broadcast_async("scan_result", fake_result)
+    
+    return {
+        "success": True,
+        "message": f"Événement SSE test envoyé à {nb_clients} client(s) connecté(s)",
+        "clients_sse": nb_clients,
+        "data_sent": fake_result
+    }

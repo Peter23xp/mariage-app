@@ -1,6 +1,6 @@
 /**
  * admin.js
- * Gère le tableau de bord d'administration (CRUD, CSV, Génération PDF).
+ * Gère le tableau de bord d'administration (CRUD, CSV, filtres, actions en masse).
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,12 +23,29 @@ document.addEventListener('DOMContentLoaded', () => {
         // Tableau
         tbody: document.getElementById('invites-tbody'),
         searchInput: document.getElementById('search-input'),
+        selectAll: document.getElementById('select-all'),
+        
+        // Filtres
+        filterStatus: document.getElementById('filter-status'),
+        filterTable: document.getElementById('filter-table'),
+        sortBy: document.getElementById('sort-by'),
+        
+        // Bulk actions
+        bulkActionsBar: document.getElementById('bulk-actions-bar'),
+        bulkCount: document.getElementById('bulk-count'),
+        btnBulkExport: document.getElementById('btn-bulk-export'),
+        btnBulkDelete: document.getElementById('btn-bulk-delete'),
         
         // Modal
         modalAdd: document.getElementById('modal-add-invite'),
         formAdd: document.getElementById('form-add-invite'),
         btnAdd: document.getElementById('btn-add-invite'),
         btnCloseModal: document.querySelectorAll('.btn-close-modal'),
+        
+        // Modal Network Info
+        modalNetworkInfo: document.getElementById('modal-network-info'),
+        btnNetworkInfo: document.getElementById('btn-network-info'),
+        btnCloseModalNetwork: document.querySelector('.btn-close-modal-network'),
         
         // Actions globales
         btnImportCsv: document.getElementById('btn-import-csv'),
@@ -42,6 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     let invitesList = []; // État local
+    let selectedInvites = new Set(); // IDs des invités sélectionnés
+    let allTables = []; // Liste de toutes les tables
 
     // === INITIALISATION ===
     
@@ -63,9 +82,44 @@ document.addEventListener('DOMContentLoaded', () => {
     function bindEvents() {
         // Recherche avec debounce
         if (els.searchInput) {
-            els.searchInput.addEventListener('input', window.utils.debounce((e) => {
-                fetchInvites(e.target.value);
+            els.searchInput.addEventListener('input', window.utils.debounce(() => {
+                applyFilters();
             }, 300));
+        }
+
+        // Filtres
+        if (els.filterStatus) {
+            els.filterStatus.addEventListener('change', applyFilters);
+        }
+        if (els.filterTable) {
+            els.filterTable.addEventListener('change', applyFilters);
+        }
+        if (els.sortBy) {
+            els.sortBy.addEventListener('change', applyFilters);
+        }
+
+        // Select All
+        if (els.selectAll) {
+            els.selectAll.addEventListener('change', (e) => {
+                const checkboxes = document.querySelectorAll('.invite-checkbox');
+                checkboxes.forEach(cb => {
+                    cb.checked = e.target.checked;
+                    if (e.target.checked) {
+                        selectedInvites.add(parseInt(cb.dataset.id));
+                    } else {
+                        selectedInvites.delete(parseInt(cb.dataset.id));
+                    }
+                });
+                updateBulkActions();
+            });
+        }
+
+        // Bulk actions
+        if (els.btnBulkExport) {
+            els.btnBulkExport.addEventListener('click', bulkExport);
+        }
+        if (els.btnBulkDelete) {
+            els.btnBulkDelete.addEventListener('click', bulkDelete);
         }
 
         // Modal Ajout
@@ -85,6 +139,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
         }
+
+        // Modal Network Info
+        if (els.btnNetworkInfo) {
+            els.btnNetworkInfo.addEventListener('click', showNetworkInfo);
+        }
+
+        if (els.btnCloseModalNetwork) {
+            els.btnCloseModalNetwork.addEventListener('click', () => {
+                els.modalNetworkInfo.classList.add('hidden');
+            });
+        }
+
+        // Copy buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('btn-copy')) {
+                const type = e.target.dataset.copy;
+                copyNetworkURL(type, e.target);
+            }
+        });
 
         // Formulaire Ajout / Edition
         if (els.formAdd) {
@@ -186,13 +259,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (els.btnBack) {
             els.btnBack.addEventListener('click', () => {
-                window.location.href = '/';
+                window.location.href = '/scan.html';
             });
         }
         
         // Délégation d'événements pour les boutons du tableau
         if (els.tbody) {
             els.tbody.addEventListener('click', handleTableActions);
+            els.tbody.addEventListener('change', handleCheckboxChange);
         }
     }
 
@@ -216,49 +290,120 @@ document.addEventListener('DOMContentLoaded', () => {
         const res = await window.api.getInvites(search);
         if (res.success) {
             invitesList = res.data;
-            renderTable();
+            extractTables();
+            applyFilters();
         }
+    }
+
+    // === FILTRES & TRI ===
+
+    function extractTables() {
+        const tables = [...new Set(invitesList.map(inv => inv.table_numero))].sort();
+        allTables = tables;
+        
+        // Populer le filtre de tables
+        if (els.filterTable) {
+            const currentValue = els.filterTable.value;
+            els.filterTable.innerHTML = '<option value="all">Toutes</option>';
+            tables.forEach(table => {
+                const opt = document.createElement('option');
+                opt.value = table;
+                opt.textContent = `Table ${table}`;
+                els.filterTable.appendChild(opt);
+            });
+            els.filterTable.value = currentValue;
+        }
+    }
+
+    function applyFilters() {
+        let filtered = [...invitesList];
+
+        // Filtre par recherche
+        const searchTerm = els.searchInput ? els.searchInput.value.toLowerCase() : '';
+        if (searchTerm) {
+            filtered = filtered.filter(inv => 
+                inv.nom_invite.toLowerCase().includes(searchTerm) ||
+                inv.code_qr.toLowerCase().includes(searchTerm) ||
+                inv.couple_nom.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        // Filtre par statut
+        const statusFilter = els.filterStatus ? els.filterStatus.value : 'all';
+        if (statusFilter !== 'all') {
+            filtered = filtered.filter(inv => inv.statut === statusFilter);
+        }
+
+        // Filtre par table
+        const tableFilter = els.filterTable ? els.filterTable.value : 'all';
+        if (tableFilter !== 'all') {
+            filtered = filtered.filter(inv => inv.table_numero === tableFilter);
+        }
+
+        // Tri
+        const sortBy = els.sortBy ? els.sortBy.value : 'nom';
+        filtered.sort((a, b) => {
+            switch(sortBy) {
+                case 'nom':
+                    return a.nom_invite.localeCompare(b.nom_invite);
+                case 'date_scan':
+                    if (!a.date_scan) return 1;
+                    if (!b.date_scan) return -1;
+                    return new Date(b.date_scan) - new Date(a.date_scan);
+                case 'table':
+                    return a.table_numero.localeCompare(b.table_numero);
+                case 'statut':
+                    return a.statut.localeCompare(b.statut);
+                default:
+                    return 0;
+            }
+        });
+
+        renderTable(filtered);
     }
 
     // === RENDU TABLEAU ===
 
-    function renderTable() {
+    function renderTable(filteredList = invitesList) {
         if (!els.tbody) return;
         
-        if (invitesList.length === 0) {
-            els.tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px;">Aucun invité trouvé.</td></tr>`;
+        if (filteredList.length === 0) {
+            els.tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px;">Aucun invité trouvé.</td></tr>`;
             return;
         }
 
         let html = '';
-        invitesList.forEach(inv => {
+        filteredList.forEach(inv => {
             const dateScan = window.utils.formatDate(inv.date_scan);
             const statusClass = inv.statut === 'entré' ? 'status-success' : 'status-warning';
             const statusText = inv.statut === 'entré' ? 'Entré' : 'Attente';
+            const isChecked = selectedInvites.has(inv.id) ? 'checked' : '';
             
-            // Le helper escapeHtml garantit qu'il n'y a pas d'XSS
             const e = window.utils.escapeHtml;
             
             html += `
                 <tr data-id="${inv.id}">
-                    <td>${inv.id}</td>
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="invite-checkbox" data-id="${inv.id}" ${isChecked}>
+                    </td>
+                    <td>${e(inv.code_qr)}</td>
                     <td>
                         <strong>${e(inv.nom_invite)}</strong><br>
-                        <small style="color:#aaa;">${e(inv.couple_nom)}</small>
+                        <small style="color:var(--color-steel);">${e(inv.couple_nom)}</small>
                     </td>
                     <td>
                         <div class="qr-thumbnail" title="${e(inv.code_qr)}">
-                            <img src="/qrcodes/${e(inv.code_qr)}.png" alt="QR" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'40\\' height=\\'40\\'><rect width=\\'40\\' height=\\'40\\' fill=\\'%23333\\'/></svg>'">
+                            <img src="/qrcodes/${e(inv.code_qr)}.png" alt="QR" onerror="this.style.display='none'">
                         </div>
                     </td>
                     <td>Table ${e(inv.table_numero)}</td>
                     <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                     <td>${dateScan}</td>
                     <td>
-                        <div class="action-buttons">
-                            <button class="btn-icon btn-edit" title="Modifier" data-action="edit" data-id="${inv.id}">✏️</button>
-                            <button class="btn-icon btn-pdf" title="Télécharger PDF" data-action="pdf" data-id="${inv.id}">📄</button>
-                            <button class="btn-icon btn-delete" title="Supprimer" data-action="delete" data-id="${inv.id}">🗑️</button>
+                        <div class="table-actions">
+                            <button data-action="edit" data-id="${inv.id}">Modifier</button>
+                            <button data-action="pdf" data-id="${inv.id}">PDF</button>
+                            <button class="danger" data-action="delete" data-id="${inv.id}">Supprimer</button>
                         </div>
                     </td>
                 </tr>
@@ -266,6 +411,92 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         els.tbody.innerHTML = html;
+    }
+
+    // === GESTIONNAIRE D'ACTIONS TABLEAU ===
+
+    // === CHECKBOX HANDLING ===
+
+    function handleCheckboxChange(e) {
+        if (e.target.classList.contains('invite-checkbox')) {
+            const id = parseInt(e.target.dataset.id);
+            if (e.target.checked) {
+                selectedInvites.add(id);
+            } else {
+                selectedInvites.delete(id);
+            }
+            updateBulkActions();
+        }
+    }
+
+    function updateBulkActions() {
+        const count = selectedInvites.size;
+        if (count > 0) {
+            els.bulkActionsBar.classList.remove('hidden');
+            els.bulkCount.textContent = `${count} sélectionné${count > 1 ? 's' : ''}`;
+        } else {
+            els.bulkActionsBar.classList.add('hidden');
+        }
+
+        // Update select all checkbox state
+        const totalCheckboxes = document.querySelectorAll('.invite-checkbox').length;
+        if (els.selectAll) {
+            els.selectAll.checked = count === totalCheckboxes && count > 0;
+        }
+    }
+
+    // === BULK ACTIONS ===
+
+    async function bulkExport() {
+        if (selectedInvites.size === 0) return;
+        
+        const selectedData = invitesList.filter(inv => selectedInvites.has(inv.id));
+        
+        // Créer un CSV avec les invités sélectionnés
+        let csv = 'Code QR,Nom Invité,Couple,Table,Statut,Date Scan\n';
+        selectedData.forEach(inv => {
+            csv += `"${inv.code_qr}","${inv.nom_invite}","${inv.couple_nom}","${inv.table_numero}","${inv.statut}","${inv.date_scan || ''}"\n`;
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const filename = `selection_${selectedInvites.size}_invites_${new Date().getTime()}.csv`;
+        window.utils.downloadBlob(blob, filename);
+        
+        window.utils.showToast(`${selectedInvites.size} invités exportés`, "success");
+    }
+
+    async function bulkDelete() {
+        if (selectedInvites.size === 0) return;
+        
+        const confirmed = await window.utils.confirmDialog(
+            `Voulez-vous vraiment supprimer ${selectedInvites.size} invité${selectedInvites.size > 1 ? 's' : ''} ? Cette action est irréversible.`
+        );
+        
+        if (!confirmed) return;
+        
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (const id of selectedInvites) {
+            const res = await window.api.deleteInvite(id);
+            if (res.success) {
+                successCount++;
+            } else {
+                errorCount++;
+            }
+        }
+        
+        selectedInvites.clear();
+        updateBulkActions();
+        
+        if (errorCount === 0) {
+            window.utils.showToast(`${successCount} invité${successCount > 1 ? 's' : ''} supprimé${successCount > 1 ? 's' : ''}`, "success");
+        } else {
+            window.utils.showToast(`${successCount} supprimés, ${errorCount} erreur(s)`, "warning");
+        }
+        
+        fetchInvites();
+        fetchStats();
     }
 
     // === GESTIONNAIRE D'ACTIONS TABLEAU ===
@@ -283,6 +514,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = await window.api.deleteInvite(id);
                 if (res.success) {
                     window.utils.showToast("Invité supprimé.", "success");
+                    selectedInvites.delete(parseInt(id));
+                    updateBulkActions();
                     fetchInvites(els.searchInput ? els.searchInput.value : '');
                     fetchStats();
                 } else {
@@ -316,4 +549,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // GO
     init();
+
+    // === NETWORK INFO FUNCTIONS ===
+
+    async function showNetworkInfo() {
+        try {
+            const response = await fetch('/api/network-info');
+            const data = await response.json();
+
+            // Afficher les URLs
+            document.getElementById('network-welcome-url').textContent = data.urls.welcome;
+            document.getElementById('network-scan-url').textContent = data.urls.scan;
+            document.getElementById('network-admin-url').textContent = data.urls.admin;
+
+            // Afficher les infos
+            document.getElementById('network-local-ip').textContent = data.local_ip;
+            document.getElementById('network-port').textContent = data.port;
+            document.getElementById('network-protocol').textContent = data.protocol.toUpperCase();
+
+            // Sauvegarder pour les copies
+            window.networkData = data;
+
+            // Afficher la modal
+            els.modalNetworkInfo.classList.remove('hidden');
+        } catch (error) {
+            console.error('Erreur lors du chargement des infos réseau:', error);
+            window.utils.showToast('Erreur de chargement des infos réseau', 'error');
+        }
+    }
+
+    async function copyNetworkURL(type, button) {
+        if (!window.networkData) return;
+
+        const url = window.networkData.urls[type];
+        if (!url) return;
+
+        try {
+            await navigator.clipboard.writeText(url);
+            const originalText = button.textContent;
+            button.textContent = 'Copié !';
+            button.style.background = '#15803d';
+
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.background = '';
+            }, 2000);
+        } catch (error) {
+            console.error('Erreur de copie:', error);
+            window.utils.showToast('Erreur de copie', 'error');
+        }
+    }
 });

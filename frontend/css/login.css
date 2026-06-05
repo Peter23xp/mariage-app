@@ -1,142 +1,227 @@
 /**
- * Styles pour l'écran de connexion administration
+ * login.css — Page de connexion admin
+ * Hero sky gradient · Carte flat Mintlify
  */
 
-/* ==================== LAYOUT PRINCIPAL ==================== */
+/* ================================================================
+   LAYOUT PRINCIPAL — Hero sky-to-cream
+================================================================ */
 
 .login-screen {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-lg);
-  background: linear-gradient(135deg, 
-    var(--color-bg-primary) 0%, 
-    #0a0a14 100%);
+  padding: var(--spacing-xl);
+  background: linear-gradient(
+    180deg,
+    var(--color-hero-sky-from) 0%,
+    var(--color-hero-sky-to)   100%
+  );
+  position: relative;
+  overflow: hidden;
 }
 
+/* Halo atmoshpérique (comme le brand-green glow de Mintlify) */
+.login-screen::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 600px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 212, 164, 0.07) 0%,
+    transparent 65%
+  );
+  pointer-events: none;
+}
 
-/* ==================== CARTE LOGIN ==================== */
+/* ================================================================
+   CARTE LOGIN — Flat canvas avec hairline border
+================================================================ */
 
 .login-card {
-  background-color: var(--color-bg-card);
-  border-radius: var(--radius-card);
-  padding: var(--spacing-3xl);
-  max-width: 500px;
+  background: var(--color-canvas);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xxl) var(--spacing-xxl) var(--spacing-xxl);
+  max-width: 420px;
   width: 100%;
-  box-shadow: var(--shadow-overlay);
-  border: var(--border-width-thin) solid var(--color-border);
+  border: 1px solid var(--color-hairline);
+  box-shadow: var(--shadow-3);
+  position: relative;
+  z-index: 1;
+}
+
+/* Barre mint top */
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-brand-green), var(--color-brand-green-deep));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+/* Logo / Brand */
+.login-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-xxl);
+}
+
+.login-brand-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.login-brand-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink);
+  letter-spacing: -0.3px;
 }
 
 .login-card h1 {
-  text-align: center;
-  font-family: var(--font-display);
   font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-accent-gold);
-  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink);
+  margin: 0 0 var(--spacing-xs);
+  letter-spacing: var(--ls-heading-2);
+  line-height: var(--line-height-tight);
+  text-align: center;
 }
 
 .login-subtitle {
   text-align: center;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-2xl);
+  font-size: var(--font-size-base);
+  color: var(--color-slate);
+  margin-bottom: var(--spacing-xxl);
+  line-height: var(--line-height-normal);
 }
 
-
-/* ==================== FORMULAIRE ==================== */
+/* ================================================================
+   FORMULAIRE LOGIN
+================================================================ */
 
 #login-form {
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-xl);
 }
 
-.input-group {
-  /* Styles déjà définis dans main.css */
+/* Override label style pour login */
+#login-form .input-group label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-slate);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-micro);
+  margin-bottom: var(--spacing-xs);
 }
+
+#login-form input[type="password"] {
+  height: 44px;   /* Touch-target mobile friendly */
+  padding: 0 48px 0 var(--spacing-md);
+}
+
+/* ================================================================
+   TOGGLE SHOW/HIDE PASSWORD
+================================================================ */
 
 .input-wrapper {
   position: relative;
 }
 
-.input-wrapper input {
-  padding-right: 48px; /* Espace pour le bouton toggle */
-}
-
-/* Bouton toggle show/hide password */
 .toggle-password-btn {
   position: absolute;
-  right: var(--spacing-sm);
+  right: var(--spacing-xs);
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
   border: none;
-  font-size: var(--font-size-lg);
+  width: 32px; height: 32px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
   cursor: pointer;
-  padding: var(--spacing-sm);
-  border-radius: var(--radius-small);
+  color: var(--color-steel);
   transition: all var(--transition-fast);
-  opacity: 0.6;
 }
 
-.toggle-password-btn:hover {
-  opacity: 1;
-  background-color: rgba(201, 168, 76, 0.1);
+.toggle-password-btn:active {
+  background: var(--color-surface);
+  color: var(--color-ink);
 }
 
-.toggle-password-btn:focus-visible {
-  outline: 2px solid var(--color-accent-gold);
-  outline-offset: 2px;
-}
-
-
-/* ==================== BOUTON SUBMIT ==================== */
+/* ================================================================
+   BOUTON SUBMIT
+================================================================ */
 
 #btn-login {
   width: 100%;
+  height: 44px;        /* Touch-target */
   margin-top: var(--spacing-xl);
-  padding: var(--spacing-lg);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  /* Surcharge : accent mint Mintlify pour le submit */
+  background: var(--color-brand-green) !important;
+  color: var(--color-ink) !important;
+  border: none;
+  border-radius: var(--radius-full);
 }
 
-
-/* ==================== MESSAGE D'ERREUR ==================== */
-
-.error-message {
-  /* Styles de base dans main.css */
-  padding: var(--spacing-md);
-  background-color: rgba(231, 76, 60, 0.1);
-  border: var(--border-width-thin) solid var(--color-danger);
-  border-radius: var(--radius-input);
-  text-align: center;
-  margin-top: var(--spacing-lg);
+#btn-login:active {
+  background: var(--color-brand-green-deep) !important;
 }
 
+/* MESSAGE D'ERREUR — styles dans main.css */
 
-/* ==================== LIEN RETOUR ==================== */
+/* ================================================================
+   LIEN RETOUR
+================================================================ */
 
 .link-secondary {
-  display: block;
-  text-align: center;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xxs);
+  font-size: var(--font-size-base);
+  color: var(--color-steel);
   transition: color var(--transition-fast);
-  padding: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+  text-align: center;
 }
 
-.link-secondary:hover {
-  color: var(--color-accent-gold);
+.link-secondary:active {
+  color: var(--color-ink);
 }
 
-
-/* ==================== RESPONSIVE ==================== */
+/* ================================================================
+   RESPONSIVE
+================================================================ */
 
 @media (max-width: 768px) {
   .login-card {
-    padding: var(--spacing-2xl);
+    padding: var(--spacing-xl) var(--spacing-lg);
   }
-  
+
   .login-card h1 {
     font-size: var(--font-size-2xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .login-screen {
+    align-items: flex-start;
+    padding-top: var(--spacing-section-sm);
+  }
+
+  .login-card {
+    border-radius: var(--radius-lg);
   }
 }
