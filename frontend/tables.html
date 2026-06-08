@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan de Table Interactif</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/tables.css">
+</head>
+<body>
+  <nav class="admin-nav">
+    <div class="nav-brand" style="display:flex;align-items:center;gap:8px;font-weight:600;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="8" r="5"/>
+        <path d="M20 21a8 8 0 1 0-16 0"/>
+      </svg>
+      <span>Mariage — Plan de Table Interactif</span>
+    </div>
+    <div class="header-actions">
+      <a href="/admin.html" class="btn btn-secondary">← Retour Administration</a>
+      <button id="btn-add-table" class="btn btn-primary">+ Nouvelle table</button>
+    </div>
+  </nav>
+
+  <main class="tables-layout">
+    <!-- Colonne de gauche: invités sans table -->
+    <aside class="sidebar-unassigned" id="zone-unassigned">
+      <div class="sidebar-header">
+        <h2>À Placer</h2>
+        <span class="badge" id="count-unassigned" style="background:var(--color-primary); color:white; padding:2px 8px; border-radius:12px; font-size:0.85rem;">0</span>
+      </div>
+      <div class="search-box">
+        <input type="text" id="search-unassigned" placeholder="Rechercher un invité...">
+      </div>
+      <div class="draggable-list" id="list-unassigned" data-table="">
+        <!-- Injectés via JS -->
+      </div>
+    </aside>
+
+    <!-- Zone principale: les tables -->
+    <section class="tables-main-area">
+      <div class="tables-grid" id="tables-grid">
+        <!-- Tables générées via JS -->
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/tables.js"></script>
+</body>
+</html>

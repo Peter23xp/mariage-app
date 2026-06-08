@@ -252,7 +252,7 @@ def supprimer_invite_by_id(id_invite: int) -> bool:
         return False
 
 def update_invite(id_invite: int, nom_invite: str, couple_nom: str, table_numero: str, role: str = 'invité', regime_alimentaire: str = 'Aucun', accompagnants: int = 0) -> bool:
-    """Met à jour les informations d'un invité (sauf le QR Code)."""
+    """Met à jour les informations d'un invité via son ID."""
     try:
         with get_connection() as conn:
             cursor = conn.cursor()
@@ -262,9 +262,28 @@ def update_invite(id_invite: int, nom_invite: str, couple_nom: str, table_numero
                 WHERE id = ?
             ''', (nom_invite, couple_nom, table_numero, role, regime_alimentaire, accompagnants, id_invite))
             conn.commit()
+            if cursor.rowcount > 0:
+                logging.info(f"Mise à jour de l'invité ID {id_invite}")
+                return True
+            return False
+    except Exception as e:
+        logging.error(f"Erreur update_invite: {e}")
+        return False
+
+def update_invite_table_only(id_invite: int, table_numero: str) -> bool:
+    """Met à jour uniquement le numéro de table (pour Drag & Drop)."""
+    try:
+        with get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE invitations 
+                SET table_numero = ?
+                WHERE id = ?
+            ''', (table_numero, id_invite))
+            conn.commit()
             return cursor.rowcount > 0
     except Exception as e:
-        logging.error(f"Erreur lors de la mise à jour de l'invité ID {id_invite}: {e}")
+        logging.error(f"Erreur update_invite_table_only: {e}")
         return False
 
 def valider_scan(code_qr: str) -> dict:

@@ -12,10 +12,15 @@ from fastapi.responses import FileResponse
 import uvicorn
 import logging
 import os
+import sys
 import asyncio
 import socket
 import webbrowser
 import threading
+
+# Correction du répertoire de travail pour l'exécutable PyInstaller
+if getattr(sys, 'frozen', False):
+    os.chdir(os.path.dirname(sys.executable))
 
 from database import init_db
 from routers import admin, generator, invites, scan, mobile
@@ -103,6 +108,11 @@ def serve_scan():
 @app.get("/admin.html")
 def serve_admin():
     return FileResponse("frontend/admin.html")
+
+@app.get("/tables.html")
+def serve_tables():
+    """Plan de table interactif"""
+    return FileResponse("frontend/tables.html")
 
 @app.get("/login.html")
 def serve_login():

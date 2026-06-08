@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Système de scan des invités — Mariage en direct">
+  <title>Mariage — Contrôle d'accès</title>
+
+  <!-- Google Fonts : Inter + Geist Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/scan.css">
+  <link rel="stylesheet" href="/css/result.css">
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <nav class="scan-nav" aria-label="Navigation principale">
+    <div class="nav-brand">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="8" r="5"/>
+        <path d="M20 21a8 8 0 1 0-16 0"/>
+      </svg>
+      <span>Mariage — Contrôle d'accès</span>
+    </div>
+    <div class="nav-actions">
+      <a href="/login.html" id="btn-admin" class="btn btn-secondary" aria-label="Accéder à l'administration">
+        Administration
+      </a>
+      <button id="btn-reset" class="btn btn-ghost hidden" aria-label="Réinitialiser le scanner">
+        Réinitialiser
+      </button>
+    </div>
+  </nav>
+
+  <main class="scan-screen">
+
+    <!-- PANNEAU VIDÉO (gauche) — Hero band teal-to-mint -->
+    <section class="video-panel" aria-label="Flux caméra">
+      <div class="video-panel-label">
+        <span>📹</span>
+        <span>Caméra de scan</span>
+      </div>
+
+      <div class="video-container">
+        <img id="camera-feed"
+             src="/scan/video-feed"
+             alt="Flux vidéo de la caméra de scan en direct"
+             width="640"
+             height="480">
+
+        <!-- Badge statut caméra -->
+        <div id="camera-status" class="camera-status" data-status="checking">
+          <span class="status-icon">🔄</span>
+          <span class="status-text">Vérification…</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANNEAU STATS (droite) -->
+    <aside class="stats-panel" aria-label="Statistiques et contrôles">
+
+      <!-- Horloge système -->
+      <div class="clock" role="timer" aria-label="Horloge système">
+        <time id="system-clock" class="clock-time" datetime="">--:--:--</time>
+        <span id="system-date" class="clock-date">-- / -- / ----</span>
+      </div>
+
+      <!-- Compteurs -->
+      <div class="counters" role="region" aria-label="Compteurs d'entrées">
+        <div class="counter-card">
+          <span id="counter-entered" class="counter-value" aria-label="Invités entrés">0</span>
+          <span class="counter-label">Invités entrés</span>
+        </div>
+        <div class="counter-card">
+          <span id="counter-total" class="counter-value" aria-label="Total invités">0</span>
+          <span class="counter-label">Total invités</span>
+        </div>
+      </div>
+
+      <!-- Barre de progression -->
+      <div class="progress-container" role="region" aria-label="Taux d'entrée">
+        <progress id="counter-progress"
+                  value="0"
+                  max="100"
+                  aria-label="Progression des entrées — 0%">
+        </progress>
+        <span id="progress-label" class="progress-label">0%</span>
+      </div>
+
+      <!-- Actions -->
+      <nav class="actions" aria-label="Actions">
+        <a href="/login.html" id="btn-admin-2" class="btn btn-primary" aria-label="Accéder à l'administration">
+          Administration
+        </a>
+        <button id="btn-reset-2" class="btn btn-ghost hidden" aria-label="Réinitialiser le scanner (debug)">
+          🔄 Reset Scanner
+        </button>
+      </nav>
+
+      <!-- Panneau connexion mobile -->
+      <div id="mobile-connect-panel" class="mobile-panel" role="region" aria-label="Connexion scanner mobile">
+        <button id="mobile-panel-toggle"
+                class="mobile-panel-toggle"
+                aria-expanded="false"
+                aria-controls="mobile-panel-body">
+          <span><span aria-hidden="true">📱</span> Scanner via smartphone</span>
+          <span id="mobile-toggle-icon" aria-hidden="true">▾</span>
+        </button>
+
+        <div id="mobile-panel-body" class="mobile-panel-body" hidden>
+          <p class="mobile-panel-hint">
+            Scannez ce QR avec votre téléphone pour ouvrir la page de scan :
+          </p>
+          <div class="mobile-qr-wrapper">
+            <img id="mobile-qr-img"
+                 src="/qr-reseau"
+                 alt="QR code de connexion au scanner mobile"
+                 class="mobile-qr-img"
+                 width="148"
+                 height="148">
+          </div>
+          <p id="mobile-url-label" class="mobile-url-label">
+            <code id="mobile-url-text">Chargement…</code>
+          </p>
+          <p class="mobile-panel-note">
+            📡 PC et téléphone doivent être sur le même réseau Wi-Fi
+          </p>
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- OVERLAY RÉSULTAT DE SCAN -->
+  <div id="scan-result-overlay" class="overlay hidden" data-state="idle" role="dialog" aria-modal="true" aria-live="assertive">
+
+    <!-- État 1 : VALIDE -->
+    <div class="result-state result-valid hidden" role="status">
+      <div class="icon-success" aria-hidden="true">✓</div>
+      <h1>Bienvenue <span id="result-name" class="highlight">—</span> !</h1>
+      <div id="result-role-badge" class="role-badge hidden">VIP</div>
+      <p class="subtitle">Table <span id="result-table" class="highlight">—</span></p>
+      
+      <div class="extra-scan-info">
+        <span id="result-accomp" class="info-pill hidden">👥 +0 accompagnants</span>
+        <span id="result-regime" class="info-pill hidden">🍽️ Aucun</span>
+      </div>
+      
+      <p class="timestamp">Entrée à <span id="result-time">—</span></p>
+    </div>
+
+    <!-- État 2 : DÉJÀ UTILISÉ -->
+    <div class="result-state result-warning hidden" role="alert">
+      <div class="icon-warning" aria-hidden="true">⚠</div>
+      <h1>Invitation déjà utilisée</h1>
+      <p class="subtitle"><span id="result-warning-name" class="highlight">—</span></p>
+      <p class="timestamp">Premier scan : <span id="result-first-scan">—</span></p>
+      <p class="note">Veuillez contacter l'accueil</p>
+    </div>
+
+    <!-- État 3 : INVALIDE -->
+    <div class="result-state result-danger hidden" role="alert">
+      <div class="icon-error" aria-hidden="true">✕</div>
+      <h1>Invitation non reconnue</h1>
+      <p class="subtitle">Ce code QR n'est pas dans la base de données</p>
+      <p class="code">Code : <code id="result-invalid-code">—</code></p>
+      <p class="note">Veuillez contacter l'accueil</p>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/scan.js"></script>
+</body>
+</html>

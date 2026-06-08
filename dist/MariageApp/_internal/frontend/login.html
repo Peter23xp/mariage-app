@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Connexion à l'espace administration du mariage">
+  <title>Administration — Connexion</title>
+
+  <!-- Google Fonts : Inter + Geist Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+  <main class="login-screen">
+    <div class="login-card">
+
+      <!-- Branding -->
+      <div class="login-brand">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="5"/>
+          <path d="M20 21a8 8 0 1 0-16 0"/>
+        </svg>
+        <span class="login-brand-name">Mariage App</span>
+      </div>
+
+      <h1>Administration</h1>
+      <p class="login-subtitle">Accès réservé aux organisateurs</p>
+
+      <form id="login-form" novalidate>
+        <div class="input-group">
+          <label for="admin-password">Mot de passe</label>
+          <div class="input-wrapper">
+            <input
+              id="admin-password"
+              type="password"
+              required
+              placeholder="Entrez le mot de passe"
+              aria-label="Mot de passe administrateur"
+              autocomplete="current-password"
+            >
+            <button
+              type="button"
+              id="toggle-password"
+              class="toggle-password-btn"
+              aria-label="Afficher le mot de passe"
+              tabindex="-1"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <p id="login-error" class="error-message hidden" role="alert">
+          Mot de passe incorrect. Veuillez réessayer.
+        </p>
+
+        <button id="btn-login" type="submit" class="btn btn-accent">
+          Accéder à l'administration
+        </button>
+      </form>
+
+      <a id="back-link" href="/scan.html" class="link-secondary">
+        ← Retour au scanner
+      </a>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/login.js"></script>
+</body>
+</html>

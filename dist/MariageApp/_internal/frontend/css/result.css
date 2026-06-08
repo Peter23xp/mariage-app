@@ -1,0 +1,241 @@
+/**
+ * result.css — Overlay résultats de scan (3 états)
+ * Valide / Déjà utilisé / Invalide — Mintlify Design System
+ */
+
+/* ================================================================
+   OVERLAY BASE
+================================================================ */
+
+#scan-result-overlay {
+  animation: fadeIn var(--transition-default);
+}
+
+/* ================================================================
+   CARTE RÉSULTAT (base)
+================================================================ */
+
+.result-state {
+  max-width: 560px;
+  width: 90%;
+  padding: var(--spacing-xxxl) var(--spacing-xxl);
+  border-radius: var(--radius-lg);
+  background: var(--color-canvas);
+  text-align: center;
+  border: 1px solid var(--color-hairline);
+  box-shadow: var(--shadow-3);
+  animation: slideUp var(--transition-slow);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ligne top colorée selon l'état */
+.result-state::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.result-valid::before   { background: var(--color-brand-green); }
+.result-warning::before { background: var(--color-brand-warn); }
+.result-danger::before  { background: var(--color-brand-error); }
+
+.result-state h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--ls-none);
+  line-height: var(--line-height-snug);
+  margin-bottom: var(--spacing-lg);
+}
+
+.result-state .subtitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-slate);
+  margin-bottom: var(--spacing-sm);
+}
+
+.result-state .timestamp {
+  font-size: var(--font-size-base);
+  color: var(--color-steel);
+  margin-bottom: var(--spacing-xs);
+  font-family: var(--font-mono);
+}
+
+/* Nouvelles règles pour Role et Extra Infos */
+.role-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-1);
+}
+
+.extra-scan-info {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-md) 0;
+  flex-wrap: wrap;
+}
+
+.info-pill {
+  background: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  color: var(--color-charcoal);
+  font-weight: var(--font-weight-medium);
+}
+
+.result-state .code {
+  font-size: var(--font-size-base);
+  font-family: var(--font-mono);
+  color: var(--color-steel);
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-surface);
+  border-radius: var(--radius-xs);
+  display: inline-block;
+}
+
+.result-state .note {
+  font-size: var(--font-size-base);
+  color: var(--color-steel);
+  margin-top: var(--spacing-xl);
+  font-style: normal;
+}
+
+.highlight {
+  color: var(--color-ink);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ================================================================
+   ICÔNES DE RÉSULTAT — cercle coloré Mintlify
+================================================================ */
+
+.icon-success,
+.icon-warning,
+.icon-error {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--spacing-xxl);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: var(--font-weight-bold);
+  position: relative;
+}
+
+.icon-success {
+  background: var(--color-brand-green-soft);
+  color: var(--color-brand-green);
+  border: 2px solid rgba(0,212,164,0.25);
+}
+
+.icon-warning {
+  background: rgba(245,158,11,0.08);
+  color: var(--color-brand-warn);
+  border: 2px solid rgba(245,158,11,0.25);
+}
+
+.icon-error {
+  background: rgba(239,68,68,0.08);
+  color: var(--color-brand-error);
+  border: 2px solid rgba(239,68,68,0.2);
+}
+
+/* ================================================================
+   ÉTAT 1 : VALIDE
+================================================================ */
+
+.result-valid {
+  background: var(--color-canvas);
+}
+
+.result-valid h1 {
+  color: var(--color-ink);
+}
+
+/* ================================================================
+   ÉTAT 2 : DÉJÀ UTILISÉ
+================================================================ */
+
+.result-warning {
+  background: var(--color-canvas);
+}
+
+.result-warning h1 {
+  color: var(--color-ink);
+}
+
+/* ================================================================
+   ÉTAT 3 : INVALIDE
+================================================================ */
+
+.result-danger {
+  background: var(--color-canvas);
+}
+
+.result-danger h1 {
+  color: var(--color-ink);
+}
+
+/* ================================================================
+   BOUTON FERMER L'OVERLAY
+================================================================ */
+
+.overlay-close {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  width: 32px; height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  color: var(--color-steel);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.overlay-close:active {
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+/* ================================================================
+   RESPONSIVE
+================================================================ */
+
+@media (max-width: 768px) {
+  .result-state {
+    padding: var(--spacing-xxl) var(--spacing-lg);
+  }
+
+  .result-state h1 {
+    font-size: var(--font-size-xl);
+  }
+
+  .icon-success,
+  .icon-warning,
+  .icon-error {
+    width: 64px;
+    height: 64px;
+    font-size: 28px;
+    margin-bottom: var(--spacing-xl);
+  }
+}

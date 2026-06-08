@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Écran de Bienvenue - Mariage</title>
+  
+  <!-- Google Fonts : Inter + Playfair Display pour élégance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/welcome_display.css">
+</head>
+<body>
+
+  <!-- Écran principal unique (idle + résultats intégrés) -->
+  <div id="idle-screen" class="screen active">
+    <div class="idle-content">
+      <div id="idle-visuals" class="idle-visuals-container">
+        <div class="couple-photo">
+          <img id="couple-image" src="/assets/images/couple.jpg" alt="Photo des mariés" onerror="this.style.display='none'">
+        </div>
+        <h1 class="elegant-title" id="couple-names">Chiza Habyarimana Claude<br>&amp; Wivine Chiza Modeste</h1>
+        <p class="elegant-subtitle">Bienvenue à notre mariage</p>
+        <div class="decorative-line"></div>
+
+        <!-- Message idle (visible quand aucun résultat) -->
+        <p class="idle-message" id="idle-message">En attente d'un invité...</p>
+      </div>
+
+      <!-- ========================================
+           CARTE RÉSULTAT INTÉGRÉE (masquée par défaut)
+      ======================================== -->
+      <div id="result-card" class="result-card hidden">
+        <!-- Icône circulaire animée -->
+        <div class="result-icon-ring" id="result-icon-ring">
+          <span class="result-icon-symbol" id="result-icon-symbol">✓</span>
+        </div>
+
+        <!-- Nom de l'invité ou titre -->
+        <h2 class="result-guest-name" id="result-guest-name"></h2>
+
+        <!-- Sous-titre / message -->
+        <p class="result-message" id="result-message"></p>
+
+        <!-- Badge table (valide uniquement) -->
+        <div class="result-table-badge" id="result-table-badge">
+          <span class="result-table-label">Votre table</span>
+          <span class="result-table-number" id="result-table-number"></span>
+        </div>
+
+        <!-- Barre de progression auto-fermeture -->
+        <div class="result-progress">
+          <div class="result-progress-fill" id="result-progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Debug SSE indicator (coin bas-gauche) -->
+      <div id="sse-debug" style="position:fixed;bottom:10px;left:10px;z-index:9999;background:rgba(0,0,0,0.85);color:#fff;font-size:11px;padding:6px 12px;border-radius:6px;font-family:monospace;pointer-events:none;">
+        SSE: <span id="sse-status" style="color:#f59e0b;">connexion…</span>
+      </div>
+    </div>
+    
+    <!-- Particules en arrière-plan -->
+    <div class="particles-container" id="particles"></div>
+
+    <!-- Confettis (pour les scans valides) -->
+    <canvas id="confetti-canvas"></canvas>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/welcome_display.js?v=20260605120500"></script>
+</body>
+</html>
