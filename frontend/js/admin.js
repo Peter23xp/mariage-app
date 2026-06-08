@@ -171,7 +171,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = {
                     nom_invite: document.getElementById('input-nom').value.trim(),
                     couple_nom: document.getElementById('input-couple').value.trim(),
-                    table_numero: document.getElementById('input-table').value.trim()
+                    table_numero: document.getElementById('input-table').value.trim(),
+                    role: document.getElementById('input-role').value,
+                    regime_alimentaire: document.getElementById('input-regime').value,
+                    accompagnants: parseInt(document.getElementById('input-accomp').value) || 0
                 };
 
                 const mode = els.formAdd.dataset.mode;
@@ -381,6 +384,18 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const e = window.utils.escapeHtml;
             
+            let roleBadge = '';
+            if (inv.role === 'vip') roleBadge = '<span style="background:var(--color-brand-warn); color:white; padding: 2px 6px; border-radius:4px; font-size:10px; font-weight:bold; margin-right:4px;">VIP</span>';
+            else if (inv.role === 'temoin') roleBadge = '<span style="background:#3b82f6; color:white; padding: 2px 6px; border-radius:4px; font-size:10px; font-weight:bold; margin-right:4px;">Témoin</span>';
+            
+            let extraInfo = '';
+            if (inv.regime_alimentaire && inv.regime_alimentaire !== 'Aucun') {
+                extraInfo += `<br><small style="color:var(--color-brand-error);">🍽️ ${e(inv.regime_alimentaire)}</small>`;
+            }
+            if (inv.accompagnants && inv.accompagnants > 0) {
+                extraInfo += `<br><small style="color:var(--color-slate);">👥 +${inv.accompagnants} pers.</small>`;
+            }
+
             html += `
                 <tr data-id="${inv.id}">
                     <td class="checkbox-cell">
@@ -388,9 +403,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </td>
                     <td>${e(inv.code_qr)}</td>
                     <td>
-                        <strong>${e(inv.nom_invite)}</strong><br>
+                        <strong>${roleBadge}${e(inv.nom_invite)}</strong><br>
                         <small style="color:var(--color-steel);">${e(inv.couple_nom)}</small>
                     </td>
+                    <td>${extraInfo || '<small style="color:var(--color-stone)">—</small>'}</td>
                     <td>
                         <div class="qr-thumbnail" title="${e(inv.code_qr)}">
                             <img src="/qrcodes/${e(inv.code_qr)}.png" alt="QR" onerror="this.style.display='none'">
@@ -529,6 +545,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('input-nom').value = invite.nom_invite;
                 document.getElementById('input-couple').value = invite.couple_nom;
                 document.getElementById('input-table').value = invite.table_numero;
+                document.getElementById('input-role').value = invite.role || 'invité';
+                document.getElementById('input-regime').value = invite.regime_alimentaire || 'Aucun';
+                document.getElementById('input-accomp').value = invite.accompagnants || 0;
                 
                 els.formAdd.dataset.mode = 'edit';
                 els.formAdd.dataset.editId = id;

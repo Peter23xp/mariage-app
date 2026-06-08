@@ -44,7 +44,7 @@ def export_csv():
     
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(['ID', 'Code QR', 'Nom Invité', 'Couple', 'Table', 'Statut', 'Date Scan'])
+    writer.writerow(['ID', 'Code QR', 'Nom Invité', 'Couple', 'Table', 'Role', 'Regime', 'Accompagnants', 'Statut', 'Date Scan'])
     
     for inv in invites:
         writer.writerow([
@@ -53,6 +53,9 @@ def export_csv():
             inv['nom_invite'],
             inv['couple_nom'],
             inv['table_numero'],
+            inv.get('role', 'invité'),
+            inv.get('regime_alimentaire', 'Aucun'),
+            inv.get('accompagnants', 0),
             inv['statut'],
             inv['date_scan'] or ''
         ])
@@ -129,6 +132,9 @@ async def import_csv(file: UploadFile = File(...)):
             nom = row.get('nom_invite')
             couple = row.get('couple_nom')
             table = row.get('table_numero')
+            role = row.get('role', 'invité')
+            regime = row.get('regime_alimentaire', 'Aucun')
+            accomp = row.get('accompagnants', 0)
             
             # Exclusion des lignes incomplètes
             if not nom or not couple or not table:
@@ -140,7 +146,10 @@ async def import_csv(file: UploadFile = File(...)):
                 req = GenerateQRRequest(
                     nom_invite=str(nom).strip(),
                     couple_nom=str(couple).strip(),
-                    table_numero=str(table).strip()
+                    table_numero=str(table).strip(),
+                    role=str(role).strip(),
+                    regime_alimentaire=str(regime).strip(),
+                    accompagnants=int(accomp) if str(accomp).isdigit() else 0
                 )
                 generate_qr(req)
                 invites_ajoutes += 1

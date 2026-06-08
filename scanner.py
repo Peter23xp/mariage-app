@@ -2,7 +2,9 @@
 Module scanner.py
 Gère la capture de la webcam en arrière-plan et le décodage des codes QR.
 """
-
+import os
+os.environ["OPENCV_LOG_LEVEL"] = "SILENT"
+os.environ["OPENCV_VIDEOIO_PRIORITY_MSMF"] = "0"
 import cv2
 import threading
 import time

@@ -10,7 +10,7 @@
 
 window.WELCOME_CONFIG = {
   // Noms du couple (affichés sur l'écran idle)
-  COUPLE_NAMES: 'Sarah & Thomas',
+  COUPLE_NAMES: 'Chiza Habyarimana Claude & Wivine Chiza Modeste',
   
   // Durée d'affichage du message de bienvenue (en millisecondes)
   WELCOME_DURATION: 8000, // 8 secondes

@@ -22,6 +22,9 @@ class GenerateQRRequest(BaseModel):
     nom_invite: str
     couple_nom: str
     table_numero: str
+    role: str = "invité"
+    regime_alimentaire: str = "Aucun"
+    accompagnants: int = 0
 
 class GenerateQRResponse(BaseModel):
     success: bool
@@ -46,7 +49,10 @@ def generate_qr(request: GenerateQRRequest):
         code_qr=code_qr,
         nom_invite=request.nom_invite,
         couple_nom=request.couple_nom,
-        table_numero=request.table_numero
+        table_numero=request.table_numero,
+        role=request.role,
+        regime_alimentaire=request.regime_alimentaire,
+        accompagnants=request.accompagnants
     )
     
     if not success:

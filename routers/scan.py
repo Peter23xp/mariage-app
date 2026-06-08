@@ -27,6 +27,9 @@ class ScanResult(BaseModel):
     nom_invite: Optional[str]
     couple_nom: Optional[str]
     table_numero: Optional[str]
+    role: Optional[str] = "invité"
+    regime_alimentaire: Optional[str] = "Aucun"
+    accompagnants: Optional[int] = 0
     date_scan: Optional[str]  # Format ISO-8601
     message: str
 
@@ -145,6 +148,9 @@ async def manual_scan(request: ScanManualRequest):
             nom_invite=None,
             couple_nom=None,
             table_numero=None,
+            role=None,
+            regime_alimentaire=None,
+            accompagnants=0,
             date_scan=None,
             message="Code QR invalide ou non trouvé"
         )

@@ -9,7 +9,7 @@
 
   // Configuration
   const CONFIG = {
-    coupleNames: 'Sarah & Thomas',
+    coupleNames: 'Chiza Habyarimana Claude & Wivine Chiza Modeste',
     resultDuration: 8000, // 8 secondes d'affichage du résultat
     particleCount: 50,
     confettiCount: 150,
@@ -37,6 +37,79 @@
     resultTableNumber: document.getElementById('result-table-number'),
     resultProgressFill: document.getElementById('result-progress-fill'),
   };
+
+  // ================================================================
+  // AUDIO (SONS)
+  // ================================================================
+  let audioCtx = null;
+
+  function initAudio() {
+    if (!audioCtx) {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (AudioContext) {
+        audioCtx = new AudioContext();
+      }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  // Initialiser l'audio au premier clic sur l'écran
+  document.addEventListener('click', initAudio, { once: true });
+
+  function playSound(type) {
+    if (!audioCtx) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    if (type === 'valide') {
+      // Jingle Joyeux / Magique (Arpège ascendant)
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+      osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+      osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+      osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3); // C6
+      
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.05);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+      
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.6);
+
+    } else if (type === 'invalide') {
+      // Buzzer d'erreur
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+      osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+      
+      gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+      
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.3);
+
+    } else if (type === 'deja_utilise') {
+      // Double bip d'avertissement
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+      
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.02);
+      gainNode.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+      gainNode.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.15);
+      gainNode.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+      
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.25);
+    }
+  }
 
   // ================================================================
   // INITIALISATION
@@ -175,6 +248,9 @@
 
     const statut = data.statut;
     const card = els.resultCard;
+
+    // Jouer le son correspondant
+    playSound(statut);
 
     // --- Icône et couleurs par statut ---
     const statusConfig = {

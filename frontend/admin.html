@@ -144,6 +144,7 @@
             </th>
             <th scope="col">Code QR</th>
             <th scope="col">Nom de l'invité</th>
+            <th scope="col">Infos</th>
             <th scope="col">QR Code</th>
             <th scope="col">Table</th>
             <th scope="col">Statut</th>
@@ -194,6 +195,7 @@
             name="couple_nom"
             type="text"
             required
+            value="Chiza Habyarimana Claude & Wivine Chiza Modeste"
             placeholder="Ex : Sarah & Thomas"
           >
         </div>
@@ -206,6 +208,42 @@
             type="text"
             placeholder="Ex : 5"
           >
+        </div>
+
+        <div class="input-group">
+          <label for="input-role">Rôle / Statut</label>
+          <select id="input-role" name="role" class="filter-select" style="width: 100%">
+            <option value="invité">Invité normal</option>
+            <option value="vip">VIP</option>
+            <option value="temoin">Témoin</option>
+            <option value="famille">Famille proche</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+          <div class="input-group">
+            <label for="input-regime">Régime alimentaire</label>
+            <select id="input-regime" name="regime_alimentaire" class="filter-select" style="width: 100%">
+              <option value="Aucun">Aucun</option>
+              <option value="Végétarien">Végétarien</option>
+              <option value="Vegan">Vegan</option>
+              <option value="Sans Gluten">Sans Gluten</option>
+              <option value="Halal">Halal</option>
+              <option value="Allergie">Autre allergie</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label for="input-accomp">Accompagnants (+1)</label>
+            <input
+              id="input-accomp"
+              name="accompagnants"
+              type="number"
+              min="0"
+              value="0"
+              placeholder="0"
+            >
+          </div>
         </div>
 
         <!-- Zone de prévisualisation QR code -->

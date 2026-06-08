@@ -1,6 +1,9 @@
 """
 Point d'entrée principal de l'application FastAPI.
 """
+import os
+os.environ["OPENCV_LOG_LEVEL"] = "FATAL"
+os.environ["OPENCV_VIDEOIO_DEBUG"] = "0"
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -155,23 +158,27 @@ if __name__ == "__main__":
         port = 8888
         protocol = "https"
         logging.info("SSL cert found -> starting HTTPS on port %d", port)
-        logging.info("Application accessible sur:")
-        logging.info("  - https://%s:%d", local_ip, port)
-        logging.info("  - https://localhost:%d", port)
+        print("\n" + "="*60)
+        print(f"✅ SERVEUR DÉMARRÉ AVEC SUCCÈS (HTTPS)")
+        print(f"🌍 Écran de Bienvenue : https://{local_ip}:{port}/")
+        print(f"📸 Scanner QR Code    : https://{local_ip}:{port}/scan.html")
+        print(f"⚙️ Administration      : https://{local_ip}:{port}/admin.html")
+        print(f"🔐 Page de Connexion  : https://{local_ip}:{port}/login.html")
+        print("="*60 + "\n")
         
         # Ouvrir automatiquement l'écran de bienvenue dans le navigateur
-        welcome_url = f"https://localhost:{port}/"
+        welcome_url = f"https://{local_ip}:{port}/"
         logging.info("Ouverture automatique de l'écran de bienvenue...")
         open_browser(welcome_url, delay=3)
         
         uvicorn.run(
             "main:app",
-            host="0.0.0.0",
+            host=local_ip,
             port=port,
             reload=False,          # reload=True incompatible avec SSL sur uvicorn
             ssl_certfile=SSL_CERT,
             ssl_keyfile=SSL_KEY,
-            log_level="warning"    # Réduire les logs d'uvicorn pour éviter le message "0.0.0.0"
+            log_level="info"       # Affiche les logs en temps réel (accès aux pages, etc.)
         )
     else:
         port = 8000
@@ -182,15 +189,19 @@ if __name__ == "__main__":
             "La camera iPhone ne fonctionnera PAS. "
             "Executez : python generate_ssl_cert.py", port
         )
-        logging.info("Application accessible sur:")
-        logging.info("  - http://%s:%d", local_ip, port)
-        logging.info("  - http://localhost:%d", port)
+        print("\n" + "="*60)
+        print(f"✅ SERVEUR DÉMARRÉ AVEC SUCCÈS (HTTP)")
+        print(f"🌍 Écran de Bienvenue : http://{local_ip}:{port}/")
+        print(f"📸 Scanner QR Code    : http://{local_ip}:{port}/scan.html")
+        print(f"⚙️ Administration      : http://{local_ip}:{port}/admin.html")
+        print(f"🔐 Page de Connexion  : http://{local_ip}:{port}/login.html")
+        print("="*60 + "\n")
         
         # Ouvrir automatiquement l'écran de bienvenue dans le navigateur
-        welcome_url = f"http://localhost:{port}/"
+        welcome_url = f"http://{local_ip}:{port}/"
         logging.info("Ouverture automatique de l'écran de bienvenue...")
         open_browser(welcome_url, delay=2)
         
-        uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True, log_level="warning")
+        uvicorn.run("main:app", host=local_ip, port=port, reload=True, log_level="info")
 
 

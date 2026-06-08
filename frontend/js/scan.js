@@ -44,7 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Champs dynamiques — VALIDE
         resNom:   document.getElementById('result-name'),
+        resRole:  document.getElementById('result-role-badge'),
         resTable: document.getElementById('result-table'),
+        resAccomp: document.getElementById('result-accomp'),
+        resRegime: document.getElementById('result-regime'),
         resTime:  document.getElementById('result-time'),
 
         // Champs dynamiques — DÉJÀ UTILISÉ
@@ -177,6 +180,59 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // === PARTIE AUDIO ===
+    let audioCtx = null;
+    function initAudio() {
+        if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) audioCtx = new AudioContext();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+    document.addEventListener('click', initAudio, { once: true });
+
+    function playSound(type) {
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        if (type === 'valide') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+            osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+            osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.05);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.6);
+        } else if (type === 'invalide') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'deja_utilise') {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.02);
+            gainNode.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            gainNode.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.15);
+            gainNode.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.25);
+        }
+    }
+
     // === PARTIE 3 : AFFICHAGE RÉSULTAT ===
 
     function afficherResultat(data) {
@@ -196,15 +252,55 @@ document.addEventListener('DOMContentLoaded', () => {
             if (el) el.classList.add('hidden');
         });
 
-        // 2. Choisir l'état et remplir les données
+        // 2. Extraire info communes
         const statut = data.statut;
-        const now    = new Date();
-        const heure  = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        
+        playSound(statut);
+
+        const maintenant = new Date();
+        const heure  = maintenant.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
         if (statut === 'valide') {
             if (els.resNom)   els.resNom.textContent   = data.nom_invite || '—';
             if (els.resTable) els.resTable.textContent = data.table_numero || '?';
             if (els.resTime)  els.resTime.textContent  = heure;
+            
+            if (els.resRole) {
+                if (data.role === 'vip') {
+                    els.resRole.textContent = 'VIP';
+                    els.resRole.classList.remove('hidden');
+                    els.resRole.style.background = 'var(--color-brand-warn)';
+                } else if (data.role === 'temoin') {
+                    els.resRole.textContent = 'Témoin';
+                    els.resRole.classList.remove('hidden');
+                    els.resRole.style.background = '#3b82f6';
+                } else if (data.role === 'famille') {
+                    els.resRole.textContent = 'Famille';
+                    els.resRole.classList.remove('hidden');
+                    els.resRole.style.background = '#8b5cf6';
+                } else {
+                    els.resRole.classList.add('hidden');
+                }
+            }
+            
+            if (els.resAccomp) {
+                if (data.accompagnants > 0) {
+                    els.resAccomp.textContent = `👥 +${data.accompagnants} accompagnants`;
+                    els.resAccomp.classList.remove('hidden');
+                } else {
+                    els.resAccomp.classList.add('hidden');
+                }
+            }
+            
+            if (els.resRegime) {
+                if (data.regime_alimentaire && data.regime_alimentaire !== 'Aucun') {
+                    els.resRegime.textContent = `🍽️ ${data.regime_alimentaire}`;
+                    els.resRegime.classList.remove('hidden');
+                } else {
+                    els.resRegime.classList.add('hidden');
+                }
+            }
+
             if (els.resultValid) els.resultValid.classList.remove('hidden');
         }
         else if (statut === 'deja_utilise') {

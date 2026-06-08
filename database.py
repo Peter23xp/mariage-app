@@ -54,11 +54,28 @@ def init_db() -> None:
                     nom_invite TEXT NOT NULL,
                     couple_nom TEXT NOT NULL,
                     table_numero TEXT NOT NULL,
+                    role TEXT DEFAULT 'invité',
+                    regime_alimentaire TEXT DEFAULT 'Aucun',
+                    accompagnants INTEGER DEFAULT 0,
                     statut TEXT DEFAULT 'attente',
                     date_scan DATETIME,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
+            
+            # Tenter d'ajouter les nouvelles colonnes si la table existe déjà (Migration douce)
+            try:
+                cursor.execute("ALTER TABLE invitations ADD COLUMN role TEXT DEFAULT 'invité'")
+            except sqlite3.OperationalError:
+                pass
+            try:
+                cursor.execute("ALTER TABLE invitations ADD COLUMN regime_alimentaire TEXT DEFAULT 'Aucun'")
+            except sqlite3.OperationalError:
+                pass
+            try:
+                cursor.execute("ALTER TABLE invitations ADD COLUMN accompagnants INTEGER DEFAULT 0")
+            except sqlite3.OperationalError:
+                pass
             
             # Table de configuration (clé/valeur)
             cursor.execute('''
@@ -101,15 +118,15 @@ def get_config(cle: str) -> Optional[str]:
         logging.error(f"Erreur lors de la récupération de la configuration {cle}: {e}")
         return None
 
-def ajouter_invite(code_qr: str, nom_invite: str, couple_nom: str, table_numero: str) -> bool:
+def ajouter_invite(code_qr: str, nom_invite: str, couple_nom: str, table_numero: str, role: str = 'invité', regime_alimentaire: str = 'Aucun', accompagnants: int = 0) -> bool:
     """Ajoute un nouvel invité dans la base de données."""
     try:
         with get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                INSERT INTO invitations (code_qr, nom_invite, couple_nom, table_numero)
-                VALUES (?, ?, ?, ?)
-            ''', (code_qr, nom_invite, couple_nom, table_numero))
+                INSERT INTO invitations (code_qr, nom_invite, couple_nom, table_numero, role, regime_alimentaire, accompagnants)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (code_qr, nom_invite, couple_nom, table_numero, role, regime_alimentaire, accompagnants))
             conn.commit()
             logging.info(f"Invité ajouté : {nom_invite} (QR: {code_qr})")
             return True
@@ -234,16 +251,16 @@ def supprimer_invite_by_id(id_invite: int) -> bool:
         logging.error(f"Erreur lors de la suppression de l'invité ID {id_invite}: {e}")
         return False
 
-def update_invite(id_invite: int, nom_invite: str, couple_nom: str, table_numero: str) -> bool:
+def update_invite(id_invite: int, nom_invite: str, couple_nom: str, table_numero: str, role: str = 'invité', regime_alimentaire: str = 'Aucun', accompagnants: int = 0) -> bool:
     """Met à jour les informations d'un invité (sauf le QR Code)."""
     try:
         with get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute('''
                 UPDATE invitations 
-                SET nom_invite = ?, couple_nom = ?, table_numero = ?
+                SET nom_invite = ?, couple_nom = ?, table_numero = ?, role = ?, regime_alimentaire = ?, accompagnants = ?
                 WHERE id = ?
-            ''', (nom_invite, couple_nom, table_numero, id_invite))
+            ''', (nom_invite, couple_nom, table_numero, role, regime_alimentaire, accompagnants, id_invite))
             conn.commit()
             return cursor.rowcount > 0
     except Exception as e:
